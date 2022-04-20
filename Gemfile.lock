@@ -1,0 +1,13 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    ffi (1.15.5)
+
+PLATFORMS
+  x86_64-linux
+
+DEPENDENCIES
+  ffi (= 1.15.5)
+
+BUNDLED WITH
+   2.2.29

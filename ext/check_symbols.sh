@@ -1,0 +1,1 @@
+nm -gD libsigma.so
