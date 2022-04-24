@@ -60,7 +60,9 @@ module Sigma
       error = ergo_lib_constant_to_base16(self.ptr, s_ptr)
       Error.check_error!(error)
       s_ptr = s_ptr.read_pointer()
-      s_ptr.null? ? nil : s_ptr.read_string().force_encoding('UTF-8')
+      rs = s_ptr.read_string().force_encoding('UTF-8')
+      Error.ergo_lib_delete_string(s_ptr)
+      rs
     end
 
     def self.with_int(int)
