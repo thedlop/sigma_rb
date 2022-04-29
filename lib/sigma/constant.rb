@@ -1,5 +1,5 @@
 require 'ffi'
-require_relative './error.rb'
+require_relative './util.rb'
 module Sigma
 
   class Constant
@@ -40,7 +40,7 @@ module Sigma
       b_ptr = FFI::MemoryPointer.new(:uint8, bytes.size)
       b_ptr.write_array_of_uint8(bytes)
       error = ergo_lib_constant_from_bytes(b_ptr, bytes.size, c_ptr)
-      Error.check_error!(error)
+      Util.check_error!(error)
 
       self.new(c_ptr)
     end
@@ -50,7 +50,7 @@ module Sigma
       b_ptr = FFI::MemoryPointer.new(:uint8, bytes.size)
       b_ptr.write_array_of_uint8(bytes)
       error = ergo_lib_constant_from_ecpoint_bytes(b_ptr, bytes.size, c_ptr)
-      Error.check_error!(error)
+      Util.check_error!(error)
 
       self.new(c_ptr)
     end
@@ -58,11 +58,11 @@ module Sigma
     def to_base16_string
       s_ptr = FFI::MemoryPointer.new(:pointer, 1)
       error = ergo_lib_constant_to_base16(self.ptr, s_ptr)
-      Error.check_error!(error)
+      Util.check_error!(error)
       s_ptr = s_ptr.read_pointer()
-      rs = s_ptr.read_string().force_encoding('UTF-8')
-      Error.ergo_lib_delete_string(s_ptr)
-      rs
+      str = s_ptr.read_string().force_encoding('UTF-8')
+      Util.ergo_lib_delete_string(s_ptr)
+      str
     end
 
     def self.with_int(int)
@@ -75,10 +75,10 @@ module Sigma
       elsif bl <= 64
         error = ergo_lib_constant_from_i64(int, c_ptr)
       else
-        raise ArgumentError.new('Only support 32bit and 64bit integers.')
+        raise ArgumentUtil.new('Only support 32bit and 64bit integers.')
       end
       # TODO: This raises error even with valid output
-      #Error.check_error!(error)
+      #Util.check_error!(error)
 
       self.new(c_ptr)
     end
@@ -86,7 +86,7 @@ module Sigma
     def self.with_base_16(str)
       c_ptr = FFI::MemoryPointer.new(:pointer)
       error = ergo_lib_constant_from_base16(str, c_ptr)
-      Error.check_error!(error)
+      Util.check_error!(error)
 
       self.new(c_ptr)
     end

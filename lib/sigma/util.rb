@@ -1,5 +1,5 @@
 module Sigma
-  module Error
+  module Util
     extend FFI::Library
     ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
 
