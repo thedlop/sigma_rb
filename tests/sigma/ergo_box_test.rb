@@ -2,7 +2,7 @@ require 'rubygems'
 require 'bundler/setup'
 require 'test/unit'
 
-require_relative '../../lib/sigma/ergo_box.rb'
+require_relative '../../lib/sigma.rb'
 require_relative '../test_utils.rb'
 
 class Sigma::ErgoBox::Test < Test::Unit::TestCase
