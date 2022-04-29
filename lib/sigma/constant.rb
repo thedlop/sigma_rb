@@ -3,13 +3,9 @@ require_relative './util.rb'
 module Sigma
 
   class Constant
-    attr_accessor :ptr
-
     extend FFI::Library
     ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
-
     typedef :pointer, :error_pointer
-
     attach_function :ergo_lib_constant_eq, [:pointer, :pointer], :bool
     attach_function :ergo_lib_constant_from_base16, [:string, :pointer], :error_pointer
     attach_function :ergo_lib_constant_from_i32, [:int32, :pointer], :error_pointer
@@ -20,16 +16,7 @@ module Sigma
     attach_function :ergo_lib_constant_from_ergo_box, [:pointer, :pointer], :error_pointer
     attach_function :ergo_lib_constant_delete, [:pointer], :void
 
-    def initialize(constant_pointer)
-      # Convert to FFI::Pointer
-      c_ptr = constant_pointer.get_pointer(0)
-
-      # Set pointer release function and save to self.ptr
-      self.ptr = FFI::AutoPointer.new(
-        c_ptr,
-        method(:ergo_lib_constant_delete)
-      )
-    end
+    attr_accessor :pointer
 
     def self.with_ergo_box(ergo_box)
       # TODO
@@ -42,7 +29,7 @@ module Sigma
       error = ergo_lib_constant_from_bytes(b_ptr, bytes.size, c_ptr)
       Util.check_error!(error)
 
-      self.new(c_ptr)
+      init(c_ptr)
     end
 
     def self.with_ecpoint_bytes(bytes)
@@ -52,12 +39,12 @@ module Sigma
       error = ergo_lib_constant_from_ecpoint_bytes(b_ptr, bytes.size, c_ptr)
       Util.check_error!(error)
 
-      self.new(c_ptr)
+      init(c_ptr)
     end
 
     def to_base16_string
       s_ptr = FFI::MemoryPointer.new(:pointer, 1)
-      error = ergo_lib_constant_to_base16(self.ptr, s_ptr)
+      error = ergo_lib_constant_to_base16(self.pointer, s_ptr)
       Util.check_error!(error)
       s_ptr = s_ptr.read_pointer()
       str = s_ptr.read_string().force_encoding('UTF-8')
@@ -80,7 +67,7 @@ module Sigma
       # TODO: This raises error even with valid output
       #Util.check_error!(error)
 
-      self.new(c_ptr)
+      init(c_ptr)
     end
 
     def self.with_base_16(str)
@@ -88,11 +75,26 @@ module Sigma
       error = ergo_lib_constant_from_base16(str, c_ptr)
       Util.check_error!(error)
 
-      self.new(c_ptr)
+      init(c_ptr)
     end
 
     def ==(constant_two)
-      ergo_lib_constant_eq(self.ptr, constant_two.ptr)
+      ergo_lib_constant_eq(self.pointer, constant_two.pointer)
+    end
+
+    private
+
+    def self.init(constant_pointer)
+      c = self.new
+      # Convert to FFI::Pointer
+      c_ptr = constant_pointer.get_pointer(0)
+
+      # Set pointer release function and save to self.ptr
+      c.pointer = FFI::AutoPointer.new(
+        c_ptr,
+        method(:ergo_lib_constant_delete)
+      )
+      c
     end
   end
 end
