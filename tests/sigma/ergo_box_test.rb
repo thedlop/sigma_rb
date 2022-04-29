@@ -11,6 +11,9 @@ class Sigma::ErgoBox::Test < Test::Unit::TestCase
     box_id = Sigma::BoxId.with_string(str)
     new_str = box_id.to_s
     assert_equal(str, new_str)
+    new_bytes = box_id.to_bytes
+    expected_bytes = [229, 104, 71, 237, 25, 179, 220, 107, 114, 130, 143, 207, 185, 146, 253, 247, 49, 8, 40, 207, 41, 18, 33, 38, 155, 127, 252, 114, 253, 102, 112, 110]
+    assert_equal(expected_bytes, new_bytes)
   end
 
   def test_box_value

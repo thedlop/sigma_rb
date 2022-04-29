@@ -11,6 +11,7 @@ module Sigma
     attach_function :ergo_lib_box_id_to_str, [:pointer, :pointer], :void
     attach_function :ergo_lib_box_id_eq, [:pointer, :pointer], :bool
     attach_function :ergo_lib_box_id_delete, [:pointer], :void
+    attach_function :ergo_lib_box_id_to_bytes, [:pointer, :pointer], :void
 
     attr_accessor :pointer
 
@@ -28,6 +29,12 @@ module Sigma
       error = ergo_lib_box_id_from_str(str, bid_ptr)
       Util.check_error!(error)
       self.new(bid_ptr)
+    end
+
+    def to_bytes
+      b_ptr = FFI::MemoryPointer.new(:uint8, 32)
+      ergo_lib_box_id_to_bytes(self.pointer, b_ptr)
+      b_ptr.get_array_of_uint8(0, 32)
     end
 
     def to_s
@@ -100,6 +107,9 @@ module Sigma
     def ==(box_value_two)
       ergo_lib_box_value_eq(self.pointer, box_value_two.pointer)
     end
+  end
+
+  class ErgoBoxCandidate
   end
 
   class ErgoBox
