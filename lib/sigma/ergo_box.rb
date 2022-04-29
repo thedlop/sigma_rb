@@ -49,12 +49,56 @@ module Sigma
     ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
     typedef :pointer, :error_pointer
 
-    attr_accessor :ptr
+    attr_accessor :pointer
+    attach_function :ergo_lib_box_value_delete, [:pointer], :void
+    attach_function :ergo_lib_box_value_eq, [:pointer, :pointer], :bool
+    attach_function :ergo_lib_box_value_from_i64, [:int64, :pointer], :error_pointer
+    attach_function :ergo_lib_box_value_as_i64, [:pointer], :int64
+    attach_function :ergo_lib_box_value_units_per_ergo, [], :int64
+    attach_function :ergo_lib_box_value_sum_of, [:pointer, :pointer, :pointer], :error_pointer
+    attach_function :ergo_lib_box_value_safe_user_min, [:pointer], :void
 
-    def initialize
+    def initialize(box_value_pointer)
+      bv_ptr = box_value_pointer.get_pointer(0)
+
+      self.pointer = FFI::AutoPointer.new(
+        bv_ptr,
+        method(:ergo_lib_box_value_delete)
+      )
+    end
+
+    def self.units_per_ergo
+      ergo_lib_box_value_units_per_ergo
+    end
+
+    def self.safe_user_min
+      bv_ptr = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_box_value_safe_user_min(bv_ptr)
+
+      self.new(bv_ptr)
+    end
+
+    def self.sum_of(bv_one, bv_two)
+      bv_ptr = FFI::MemoryPointer.new(:pointer)
+      error = ergo_lib_box_value_sum_of(bv_one.pointer, bv_two.pointer, bv_ptr)
+      Util.check_error!(error)
+
+      self.new(bv_ptr)
+    end
+
+    def self.with_int(int)
+      bv_ptr = FFI::MemoryPointer.new(:pointer)
+      error = ergo_lib_box_value_from_i64(int, bv_ptr)
+      Util.check_error!(error)
+      self.new(bv_ptr)
     end
 
     def to_i
+      ergo_lib_box_value_as_i64(self.pointer)
+    end
+
+    def ==(box_value_two)
+      ergo_lib_box_value_eq(self.pointer, box_value_two.pointer)
     end
   end
 
