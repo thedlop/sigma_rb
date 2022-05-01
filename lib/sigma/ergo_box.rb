@@ -3,6 +3,7 @@ require_relative './util.rb'
 
 module Sigma
   extend FFI::Library
+  typedef :pointer, :error_pointer
   REGISTER_ID = enum :non_mandatory_register_id, 
     [
       :r4, 4,
@@ -12,6 +13,11 @@ module Sigma
       :r8,
       :r9
     ]
+
+  class ReturnOption < FFI::Struct 
+    layout :is_some, :bool,
+           :error, :error_pointer
+  end
   
   class BoxId
     extend FFI::Library
@@ -24,6 +30,10 @@ module Sigma
     attach_function :ergo_lib_box_id_to_bytes, [:pointer, :pointer], :void
 
     attr_accessor :pointer
+
+    def self.with_raw_pointer(bid_ptr)
+      init(bid_ptr)
+    end
 
     def self.with_string(str)
       bid_ptr = FFI::MemoryPointer.new(:pointer)
@@ -79,6 +89,10 @@ module Sigma
     attach_function :ergo_lib_box_value_safe_user_min, [:pointer], :void
 
     attr_accessor :pointer
+
+    def self.with_raw_pointer(bv_pointer)
+      init(bv_pointer)
+    end
 
     def self.units_per_ergo
       ergo_lib_box_value_units_per_ergo
@@ -143,9 +157,10 @@ module Sigma
     attach_function :ergo_lib_ergo_box_tokens, [:pointer, :pointer], :void
     attach_function :ergo_lib_ergo_box_ergo_tree, [:pointer, :pointer], :void
     attach_function :ergo_lib_ergo_box_value, [:pointer, :pointer], :void
-    attach_function :ergo_lib_ergo_box_register_value, [:pointer, Sigma::REGISTER_ID, :pointer], :pointer
+    attach_function :ergo_lib_ergo_box_register_value, [:pointer, Sigma::REGISTER_ID, :pointer], ReturnOption
     attach_function :ergo_lib_ergo_box_new, [:pointer,:uint32, :pointer, :pointer, :uint16, :pointer, :pointer], :error_pointer
     attach_function :ergo_lib_ergo_box_delete, [:pointer], :void
+    attach_function :ergo_lib_ergo_box_eq, [:pointer, :pointer], :bool
 
     attr_accessor
 
@@ -168,30 +183,55 @@ module Sigma
     end
 
     def get_box_id
+      box_id_ptr = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_ergo_box_id(self.pointer, box_id_ptr)
+      Sigma::BoxId.with_raw_pointer(box_id_ptr)
     end
 
     def get_box_value
+      box_value_ptr = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_ergo_box_value(self.pointer, box_value_ptr)
+      Sigma::BoxValue.with_raw_pointer(box_value_ptr)
     end
 
     def get_creation_height
+      ergo_lib_ergo_box_creation_height(self.pointer)
     end
 
     # requires NonMandatoryRegisterId (enum)
-    def get_register_value
+    def get_register_value(register_id)
+      constant_ptr = FFI::MemoryPointer.new(:pointer)
+      res = ergo_lib_ergo_box_register_value(self.pointer, register_id, constant_ptr)
+      Util.checkError!(res["error"])
+      if res["is_some"]
+        Sigma::Constant.with_raw_pointer(constant_ptr)
+      else
+        nil
+      end
     end
 
-    # requires Token
+    # requires Tokens
     def get_tokens
+      tokens_ptr = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_ergo_box_tokens(self.pointer, tokens_ptr)
+      Sigma::Tokens.with_raw_pointer(tokens_ptr)
     end
 
     # requires ErgoTree
     def get_ergo_tree
+      ergo_tree_ptr = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_ergo_box_ergo_tree(self.pointer, ergo_tree_ptr)
+      Sigma::ErgoTree.with_raw_pointer(ergo_tree_ptr)
     end
 
     def to_json
     end
 
     def to_json_eip12
+    end
+
+    def ==(ergo_box_two)
+      ergo_lib_ergo_box_eq(self.pointer, ergo_box_two.pointer)
     end
 
     private
