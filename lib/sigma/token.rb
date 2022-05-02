@@ -12,6 +12,53 @@ module Sigma
     end
   end
 
+  class TokenAmount
+    extend FFI::Library
+    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+
+    typedef :pointer, :error_pointer
+
+    attach_function :ergo_lib_token_amount_delete, [:pointer], :void
+    attach_function :ergo_lib_token_amount_from_i64, [:int64, :pointer], :error_pointer
+    attach_function :ergo_lib_token_amount_as_i64, [:pointer], :int64
+    attach_function :ergo_lib_token_amount_eq, [:pointer, :pointer], :bool
+
+    attr_accessor :pointer
+
+    def self.with_raw_pointer(unread_pointer)
+      init(unread_pointer)
+    end
+
+    def self.with_int(int)
+      ptr = FFI::MemoryPointer.new(:pointer)
+      error = ergo_lib_token_amount_from_i64(int, ptr)
+      Util.check_error!(error)
+
+      init(ptr)
+    end
+
+    def to_i
+      ergo_lib_token_amount_as_i64(self.pointer)
+    end
+
+    def ==(token_amount_two)
+      ergo_lib_token_amount_eq(self.pointer, token_amount_two.pointer)
+    end
+
+    private
+
+    def self.init(unread_pointer)
+      obj = self.new
+      obj_ptr = unread_pointer.get_pointer(0)
+
+      obj.pointer = FFI::AutoPointer.new(
+        obj_ptr,
+        method(:ergo_lib_token_amount_delete)
+      )
+      obj 
+    end
+  end
+
   class TokenId
     extend FFI::Library
     ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
@@ -21,6 +68,7 @@ module Sigma
     attach_function :ergo_lib_token_id_from_box_id, [:pointer, :pointer], :void
     attach_function :ergo_lib_token_id_from_str, [:pointer, :pointer], :error_pointer
     attach_function :ergo_lib_token_id_delete, [:pointer], :void
+    attach_function :ergo_lib_token_id_eq, [:pointer, :pointer], :bool
     attach_function :ergo_lib_token_id_to_str, [:pointer, :pointer], :void
 
     attr_accessor :pointer
@@ -53,17 +101,21 @@ module Sigma
       str
     end
 
+    def ==(token_id_two)
+      ergo_lib_token_id_eq(self.pointer, token_id_two.pointer)
+    end
+
     private
 
-    def self.init(token_id_pointer)
-      tid = self.new
-      tid_ptr = token_id_pointer.get_pointer(0)
+    def self.init(unread_pointer)
+      obj = self.new
+      obj_ptr = unread_pointer.get_pointer(0)
 
-      tid.pointer = FFI::AutoPointer.new(
-        tid_ptr,
+      obj.pointer = FFI::AutoPointer.new(
+        obj_ptr,
         method(:ergo_lib_token_id_delete)
       )
-      tid
+      obj 
     end
   end
 

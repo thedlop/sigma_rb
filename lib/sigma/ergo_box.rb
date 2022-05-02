@@ -64,15 +64,15 @@ module Sigma
 
     private
     
-    def self.init(box_id_pointer)
-      bid = self.new
-      bid_ptr = box_id_pointer.get_pointer(0)
+    def self.init(unread_pointer)
+      obj = self.new
+      obj_ptr = unread_pointer.get_pointer(0)
 
-      bid.pointer = FFI::AutoPointer.new(
-        bid_ptr,
+      obj.pointer = FFI::AutoPointer.new(
+        obj_ptr,
         method(:ergo_lib_box_id_delete)
       )
-      bid
+      obj 
     end
   end
 
@@ -131,16 +131,15 @@ module Sigma
 
     private
     
-    def self.init(box_value_pointer)
-      bv = self.new
-      bv_ptr = box_value_pointer.get_pointer(0)
+    def self.init(unread_pointer)
+      obj = self.new
+      obj_ptr = unread_pointer.get_pointer(0)
 
-      bv.pointer = FFI::AutoPointer.new(
-        bv_ptr,
+      obj.pointer = FFI::AutoPointer.new(
+        obj_ptr,
         method(:ergo_lib_box_value_delete)
       )
-
-      bv
+      obj 
     end
   end
 
@@ -236,17 +235,15 @@ module Sigma
 
     private
 
-    def self.init(eb_pointer)
-      eb = self.new
-      # Convert to FFI::Pointer
-      eb_ptr = eb_pointer.get_pointer(0)
+    def self.init(unread_pointer)
+      obj = self.new
+      obj_ptr = unread_pointer.get_pointer(0)
 
-      # Set pointer release function and save to self.ptr
-      eb.pointer = FFI::AutoPointer.new(
-        eb_ptr,
+      obj.pointer = FFI::AutoPointer.new(
+        obj_ptr,
         method(:ergo_lib_ergo_box_delete)
       )
-      c
+      obj 
     end
   end
 end

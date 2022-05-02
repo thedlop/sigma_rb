@@ -84,17 +84,15 @@ module Sigma
 
     private
 
-    def self.init(constant_pointer)
-      c = self.new
-      # Convert to FFI::Pointer
-      c_ptr = constant_pointer.get_pointer(0)
+    def self.init(unread_pointer)
+      obj = self.new
+      obj_ptr = unread_pointer.get_pointer(0)
 
-      # Set pointer release function and save to self.ptr
-      c.pointer = FFI::AutoPointer.new(
-        c_ptr,
+      obj.pointer = FFI::AutoPointer.new(
+        obj_ptr,
         method(:ergo_lib_constant_delete)
       )
-      c
+      obj 
     end
   end
 end
