@@ -156,14 +156,14 @@ module Sigma
     attach_function :ergo_lib_ergo_box_tokens, [:pointer, :pointer], :void
     attach_function :ergo_lib_ergo_box_ergo_tree, [:pointer, :pointer], :void
     attach_function :ergo_lib_ergo_box_value, [:pointer, :pointer], :void
-    attach_function :ergo_lib_ergo_box_register_value, [:pointer, Sigma::REGISTER_ID, :pointer], ReturnOption
+    attach_function :ergo_lib_ergo_box_register_value, [:pointer, Sigma::REGISTER_ID, :pointer], ReturnOption.by_value
     attach_function :ergo_lib_ergo_box_new, [:pointer,:uint32, :pointer, :pointer, :uint16, :pointer, :pointer], :error_pointer
     attach_function :ergo_lib_ergo_box_delete, [:pointer], :void
     attach_function :ergo_lib_ergo_box_eq, [:pointer, :pointer], :bool
 
     attr_accessor
 
-    def initialize(box_value:,
+    def self.create(box_value:,
                    creation_height:,
                    contract:,
                    tx_id:,
@@ -201,8 +201,8 @@ module Sigma
     def get_register_value(register_id)
       constant_ptr = FFI::MemoryPointer.new(:pointer)
       res = ergo_lib_ergo_box_register_value(self.pointer, register_id, constant_ptr)
-      Util.checkError!(res["error"])
-      if res["is_some"]
+      Util.checkError!(res[:error])
+      if res[:is_some]
         Sigma::Constant.with_raw_pointer(constant_ptr)
       else
         nil
