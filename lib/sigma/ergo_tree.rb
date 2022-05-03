@@ -2,7 +2,6 @@ require 'ffi'
 require_relative './util.rb'
 
 module Sigma
-
   class ErgoTree
     extend FFI::Library
     ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
@@ -10,6 +9,7 @@ module Sigma
     typedef :pointer, :error_pointer
 
     attach_function :ergo_lib_ergo_tree_delete, [:pointer], :void
+    attach_function :ergo_lib_ergo_tree_eq, [:pointer, :pointer], :bool
     attach_function :ergo_lib_ergo_tree_from_base16_bytes, [:pointer, :pointer], :error_pointer
     attach_function :ergo_lib_ergo_tree_to_base16_bytes, [:pointer, :pointer], :error_pointer
     attach_function :ergo_lib_ergo_tree_to_bytes, [:pointer, :pointer], :error_pointer
@@ -89,6 +89,10 @@ module Sigma
       # Replace self.pointer with new ergo_tree pointer
       # Old pointer will be deleted when out of scope by GC
       self.class.init(pointer, obj: self)
+    end
+
+    def ==(ergo_tree_two)
+      ergo_lib_ergo_tree_eq(self.pointer, ergo_tree_two.pointer)
     end
 
     private

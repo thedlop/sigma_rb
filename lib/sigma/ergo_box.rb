@@ -108,7 +108,7 @@ module Sigma
       init(bv_ptr)
     end
 
-    def self.with_int(int)
+    def self.from_i64(int)
       bv_ptr = FFI::MemoryPointer.new(:pointer)
       error = ergo_lib_box_value_from_i64(int, bv_ptr)
       Util.check_error!(error)
@@ -116,7 +116,7 @@ module Sigma
       init(bv_ptr)
     end
 
-    def to_i
+    def to_i64
       ergo_lib_box_value_as_i64(self.pointer)
     end
 
