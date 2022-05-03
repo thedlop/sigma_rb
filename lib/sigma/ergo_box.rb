@@ -13,11 +13,6 @@ module Sigma
       :r8,
       :r9
     ]
-
-  class ReturnOption < FFI::Struct 
-    layout :is_some, :bool,
-           :error, :error_pointer
-  end
   
   class BoxId
     extend FFI::Library

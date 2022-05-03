@@ -9,7 +9,9 @@ module Sigma
     attach_function :ergo_lib_constant_eq, [:pointer, :pointer], :bool
     attach_function :ergo_lib_constant_from_base16, [:string, :pointer], :error_pointer
     attach_function :ergo_lib_constant_from_i32, [:int32, :pointer], :error_pointer
+    attach_function :ergo_lib_constant_to_i32, [:pointer], ReturnNumI32.by_value
     attach_function :ergo_lib_constant_from_i64, [:int64, :pointer], :error_pointer
+    attach_function :ergo_lib_constant_to_i64, [:pointer], ReturnNumI64.by_value
     attach_function :ergo_lib_constant_to_base16, [:pointer, :pointer], :error_pointer
     attach_function :ergo_lib_constant_from_bytes, [:pointer, :uint, :pointer], :error_pointer
     attach_function :ergo_lib_constant_from_ecpoint_bytes, [:pointer, :uint, :pointer], :error_pointer
@@ -42,6 +44,10 @@ module Sigma
       init(c_ptr)
     end
 
+    def self.with_raw_pointer(constant_pointer)
+      init(constant_pointer)
+    end
+
     def to_base16_string
       s_ptr = FFI::MemoryPointer.new(:pointer, 1)
       error = ergo_lib_constant_to_base16(self.pointer, s_ptr)
@@ -52,22 +58,20 @@ module Sigma
       str
     end
 
-    def self.with_int(int)
-      error = nil
-      bl = int.bit_length
-      c_ptr = FFI::MemoryPointer.new(:pointer)
-      if bl <= 32
-        error = ergo_lib_constant_from_i32(int, c_ptr)
-        #c.ptr = c.ptr.get_pointer(0)
-      elsif bl <= 64
-        error = ergo_lib_constant_from_i64(int, c_ptr)
-      else
-        raise ArgumentUtil.new('Only support 32bit and 64bit integers.')
-      end
+    def self.with_i32(int)
+      pointer = FFI::MemoryPointer.new(:pointer)
+      error = ergo_lib_constant_from_i32(int, pointer)
       # TODO: This raises error even with valid output
       #Util.check_error!(error)
+      init(pointer)
+    end
 
-      init(c_ptr)
+    def self.with_i64(int)
+      pointer = FFI::MemoryPointer.new(:pointer)
+      error = ergo_lib_constant_from_i64(int, pointer)
+      # TODO: This raises error even with valid output
+      #Util.check_error!(error)
+      init(pointer)
     end
 
     def self.with_base_16(str)
@@ -76,6 +80,18 @@ module Sigma
       Util.check_error!(error)
 
       init(c_ptr)
+    end
+
+    def to_i32
+      res = ergo_lib_constant_to_i32(self.pointer)
+      Util.check_error!(res[:error])
+      res[:value]
+    end
+
+    def to_i64
+      res = ergo_lib_constant_to_i64(self.pointer)
+      Util.check_error!(res[:error])
+      res[:value]
     end
 
     def ==(constant_two)

@@ -7,14 +7,14 @@ require_relative '../test_utils.rb'
 
 class Sigma::Constant::Test < Test::Unit::TestCase
   def test_i32
-    c = Sigma::Constant.with_int(9999)
+    c = Sigma::Constant.with_i32(9999)
     encoded = c.to_base16_string
     decoded = Sigma::Constant.with_base_16(encoded)
     assert_equal(c, decoded)
   end
 
   def test_i64
-    c = Sigma::Constant.with_int(9223372036854775807)
+    c = Sigma::Constant.with_i64(9223372036854775807)
     encoded = c.to_base16_string
     decoded = Sigma::Constant.with_base_16(encoded)
     assert_equal(c, decoded)
