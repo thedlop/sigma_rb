@@ -4,15 +4,6 @@ require_relative './util.rb'
 module Sigma
   extend FFI::Library
   typedef :pointer, :error_pointer
-  REGISTER_ID = enum :non_mandatory_register_id, 
-    [
-      :r4, 4,
-      :r5,
-      :r6,
-      :r7,
-      :r8,
-      :r9
-    ]
   
   class BoxId
     extend FFI::Library
@@ -151,7 +142,7 @@ module Sigma
     attach_function :ergo_lib_ergo_box_tokens, [:pointer, :pointer], :void
     attach_function :ergo_lib_ergo_box_ergo_tree, [:pointer, :pointer], :void
     attach_function :ergo_lib_ergo_box_value, [:pointer, :pointer], :void
-    attach_function :ergo_lib_ergo_box_register_value, [:pointer, Sigma::REGISTER_ID, :pointer], ReturnOption.by_value
+    attach_function :ergo_lib_ergo_box_register_value, [:pointer, Sigma::REGISTER_ID_ENUM, :pointer], ReturnOption.by_value
     attach_function :ergo_lib_ergo_box_new, [:pointer,:uint32, :pointer, :pointer, :uint16, :pointer, :pointer], :error_pointer
     attach_function :ergo_lib_ergo_box_delete, [:pointer], :void
     attach_function :ergo_lib_ergo_box_eq, [:pointer, :pointer], :bool
