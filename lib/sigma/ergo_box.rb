@@ -155,8 +155,11 @@ module Sigma
     attach_function :ergo_lib_ergo_box_new, [:pointer,:uint32, :pointer, :pointer, :uint16, :pointer, :pointer], :error_pointer
     attach_function :ergo_lib_ergo_box_delete, [:pointer], :void
     attach_function :ergo_lib_ergo_box_eq, [:pointer, :pointer], :bool
+    attach_function :ergo_lib_ergo_box_from_json, [:pointer, :pointer], :error_pointer
+    attach_function :ergo_lib_ergo_box_to_json, [:pointer, :pointer], :error_pointer
+    attach_function :ergo_lib_ergo_box_to_json_eip12, [:pointer, :pointer], :error_pointer
 
-    attr_accessor
+    attr_accessor :pointer
 
     def self.create(box_value:,
                    creation_height:,
@@ -173,7 +176,11 @@ module Sigma
       init(eb_pointer) 
     end
 
-    def self.with_json(json)
+    def self.with_json(json_str)
+      pointer = FFI::MemoryPointer.new(:pointer)
+      error = ergo_lib_ergo_box_from_json(json_str, pointer)
+      Util.check_error!(error)
+      init(pointer)
     end
 
     def get_box_id
@@ -219,9 +226,25 @@ module Sigma
     end
 
     def to_json
+      s_ptr = FFI::MemoryPointer.new(:pointer, 1)
+      pointer = FFI::MemoryPointer.new(:pointer)
+      error = ergo_lib_ergo_box_to_json(self.pointer, s_ptr)
+      Util.check_error!(error)
+      s_ptr = s_ptr.read_pointer()
+      str = s_ptr.read_string().force_encoding('UTF-8')
+      Util.ergo_lib_delete_string(s_ptr)
+      str
     end
 
     def to_json_eip12
+      s_ptr = FFI::MemoryPointer.new(:pointer, 1)
+      pointer = FFI::MemoryPointer.new(:pointer)
+      error = ergo_lib_ergo_box_to_json_eip12(self.pointer, s_ptr)
+      Util.check_error!(error)
+      s_ptr = s_ptr.read_pointer()
+      str = s_ptr.read_string().force_encoding('UTF-8')
+      Util.ergo_lib_delete_string(s_ptr)
+      str
     end
 
     def ==(ergo_box_two)
