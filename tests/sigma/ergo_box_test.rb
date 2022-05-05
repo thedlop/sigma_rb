@@ -105,4 +105,38 @@ class Sigma::ErgoBox::Test < Test::Unit::TestCase
     assert_equal(payload_eip12, JSON.parse(ergo_box.to_json_eip12))
   end
 
+  def test_ergo_boxes
+    box_id_str = "e56847ed19b3dc6b72828fcfb992fdf7310828cf291221269b7ffc72fd66706e"
+    box_value_int = 67500000000
+    ergo_tree_encoded_str = "100204a00b08cd021dde34603426402615658f1d970cfa7c7bd92ac81a8b16eeebff264d59ce4604ea02d192a39a8cc7a70173007301"
+    tx_id_str = "9148408c04c2e38a6402a7950d6157730fa7d49e9ab3b9cadec481d7769918e9"
+    creation_height = 284761
+    index = 1
+
+    box_id = Sigma::BoxId.with_string(box_id_str)
+    box_value = Sigma::BoxValue.from_i64(box_value_int)
+    ergo_tree = Sigma::ErgoTree.from_base16_encoded_string(ergo_tree_encoded_str)
+    contract = Sigma::Contract.from_ergo_tree(ergo_tree)
+    tx_id = Sigma::TxId.with_string(tx_id_str)
+    tokens = Sigma::Tokens.create
+    ergo_box = Sigma::ErgoBox.create(box_value: box_value, creation_height: creation_height, 
+      contract: contract, tx_id: tx_id, index: index, tokens: tokens)
+
+    ergo_boxes = Sigma::ErgoBoxes.create
+    assert_equal(0, ergo_boxes.len)
+
+    ergo_boxes.add(ergo_box)
+    assert_equal(1, ergo_boxes.len)
+
+    retrieved_box = ergo_boxes.get(0)
+    assert_equal(ergo_box, retrieved_box)
+
+    nil_retrieved_box = ergo_boxes.get(1)
+    assert_equal(nil, nil_retrieved_box)
+
+    boxes_in_json = [ergo_box.to_json, retrieved_box.to_json]
+    ergo_boxes_from_json = Sigma::ErgoBoxes.from_json(boxes_in_json)
+    assert_equal(2, ergo_boxes_from_json.len)
+    assert_equal(ergo_box, ergo_boxes_from_json.get(0))
+  end
 end

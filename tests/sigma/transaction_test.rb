@@ -33,9 +33,7 @@ class Sigma::Transaction::Test < Test::Unit::TestCase
   #  }
   #  json_str = payload.to_json
 
-  #  # TODO Address
   #  recipient = Sigma::Address.with_testnet_address(tn_address)
-  #  # TODO ErgoBoxes
   #  unspent_boxes = Sigma::ErgoBoxes.from_json([json_str])
   #  # TODO Contract
   #  contract = Sigma::Contract.pay_to_address(recipient)

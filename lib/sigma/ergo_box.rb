@@ -167,6 +167,10 @@ module Sigma
       init(eb_pointer) 
     end
 
+    def self.with_raw_pointer(unread_pointer)
+      init(unread_pointer)
+    end
+
     def self.with_json(json_str)
       pointer = FFI::MemoryPointer.new(:pointer)
       error = ergo_lib_ergo_box_from_json(json_str, pointer)
@@ -190,7 +194,6 @@ module Sigma
       ergo_lib_ergo_box_creation_height(self.pointer)
     end
 
-    # requires NonMandatoryRegisterId (enum)
     def get_register_value(register_id)
       constant_ptr = FFI::MemoryPointer.new(:pointer)
       res = ergo_lib_ergo_box_register_value(self.pointer, register_id, constant_ptr)
@@ -202,14 +205,12 @@ module Sigma
       end
     end
 
-    # requires Tokens
     def get_tokens
       tokens_ptr = FFI::MemoryPointer.new(:pointer)
       ergo_lib_ergo_box_tokens(self.pointer, tokens_ptr)
       Sigma::Tokens.with_raw_pointer(tokens_ptr)
     end
 
-    # requires ErgoTree
     def get_ergo_tree
       ergo_tree_ptr = FFI::MemoryPointer.new(:pointer)
       ergo_lib_ergo_box_ergo_tree(self.pointer, ergo_tree_ptr)
@@ -253,6 +254,74 @@ module Sigma
         method(:ergo_lib_ergo_box_delete)
       )
       obj 
+    end
+  end
+
+  class ErgoBoxes
+    extend FFI::Library
+    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    typedef :pointer, :error_pointer
+    attach_function :ergo_lib_ergo_boxes_new, [:pointer], :void
+    attach_function :ergo_lib_ergo_boxes_delete, [:pointer], :void
+    attach_function :ergo_lib_ergo_boxes_add, [:pointer, :pointer], :void
+    attach_function :ergo_lib_ergo_boxes_len, [:pointer], :uint8
+    attach_function :ergo_lib_ergo_boxes_get, [:pointer, :uint8, :pointer], ReturnOption.by_value
+
+    attr_accessor :pointer
+
+    def self.with_raw_pointer(unread_pointer)
+      init(unread_pointer)
+    end
+
+    def self.create
+      pointer = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_ergo_boxes_new(pointer)
+
+      init(pointer)
+    end
+
+    # Paramter is an ARRAY of JSON Strings
+    def self.from_json(array_of_json_elements)
+      boxes = array_of_json_elements.map do |json|
+        Sigma::ErgoBox.with_json(json)
+      end
+      container = create
+      boxes.each do |box|
+        container.add(box)
+      end
+      container
+    end
+
+    def len
+      ergo_lib_ergo_boxes_len(self.pointer)
+    end
+
+    def add(ergo_box)
+      ergo_lib_ergo_boxes_add(ergo_box.pointer, self.pointer)
+    end
+
+    def get(index)
+      pointer = FFI::MemoryPointer.new(:pointer)
+      res = ergo_lib_ergo_boxes_get(self.pointer, index, pointer)
+      Util.check_error!(res[:error])
+      if res[:is_some]
+        Sigma::ErgoBox.with_raw_pointer(pointer)
+      else
+        nil
+      end
+    end
+
+    private
+
+    def self.init(unread_pointer)
+      obj = self.new
+      obj_ptr = unread_pointer.get_pointer(0)
+
+      obj.pointer = FFI::AutoPointer.new(
+        obj_ptr,
+        method(:ergo_lib_ergo_boxes_delete)
+      )
+      obj
     end
   end
 end
