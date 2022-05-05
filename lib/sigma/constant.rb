@@ -20,7 +20,10 @@ module Sigma
     attr_accessor :pointer
 
     def self.with_ergo_box(ergo_box)
-      # TODO
+      c_ptr = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_constant_from_ergo_box(ergo_box.pointer, c_ptr)
+      
+      init(c_ptr)
     end
 
     def self.with_bytes(bytes)
