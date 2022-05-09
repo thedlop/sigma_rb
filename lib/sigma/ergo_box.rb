@@ -133,6 +133,69 @@ module Sigma
     extend FFI::Library
     ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
     typedef :pointer, :error_pointer
+    attach_function :ergo_lib_ergo_box_candidate_eq, [:pointer, :pointer], :bool
+    attach_function :ergo_lib_ergo_box_candidate_delete, [:pointer], :void
+    attach_function :ergo_lib_ergo_box_candidate_box_value, [:pointer, :pointer], :void
+    attach_function :ergo_lib_ergo_box_candidate_ergo_tree, [:pointer, :pointer], :void
+    attach_function :ergo_lib_ergo_box_candidate_tokens, [:pointer, :pointer], :void
+    attach_function :ergo_lib_ergo_box_candidate_creation_height, [:pointer], :uint32
+    attach_function :ergo_lib_ergo_box_candidate_register_value, [:pointer, Sigma::REGISTER_ID_ENUM, :pointer], ReturnOption.by_value
+
+    attr_accessor :pointer
+
+    def self.with_raw_pointer(pointer)
+      init(pointer)
+    end
+
+    def get_register_value(register_id)
+      constant_ptr = FFI::MemoryPointer.new(:pointer)
+      res = ergo_lib_ergo_box_candidate_register_value(self.pointer, register_id, constant_ptr)
+      Util.checkError!(res[:error])
+      if res[:is_some]
+        Sigma::Constant.with_raw_pointer(constant_ptr)
+      else
+        nil
+      end
+    end
+
+    def get_creation_height
+      ergo_lib_ergo_box_candidate_creation_height(self.pointer)
+    end
+
+    def get_tokens
+      pointer = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_ergo_box_candidate_tokens(self.pointer, pointer)
+      Sigma::Tokens.with_raw_pointer(pointer)
+    end
+
+    def get_ergo_tree
+      pointer = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_ergo_box_candidate_ergo_tree(self.pointer, pointer)
+      Sigma::ErgoTree.with_raw_pointer(pointer)
+    end
+
+    def get_box_value
+      pointer = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_ergo_box_candidate_box_value(self.pointer, pointer)
+      Sigma::BoxValue.with_raw_pointer(pointer)
+    end
+
+    def ==(ebc_two)
+      ergo_lib_ergo_box_candidate_eq(self.pointer, ebc_two.pointer)
+    end
+
+    private
+
+    def self.init(unread_pointer)
+      obj = self.new
+      obj_ptr = unread_pointer.get_pointer(0)
+
+      obj.pointer = FFI::AutoPointer.new(
+        obj_ptr,
+        method(:ergo_lib_ergo_box_candidate_delete)
+      )
+      obj 
+    end
   end
 
   class ErgoBox
