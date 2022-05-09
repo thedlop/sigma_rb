@@ -10,6 +10,7 @@ module Sigma
   require_relative 'sigma/ergo_tree'
   require_relative 'sigma/contract'
   require_relative 'sigma/transaction'
+  require_relative 'sigma/ergo_box_candidate_builder'
 end
 
 

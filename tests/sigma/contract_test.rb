@@ -28,12 +28,12 @@ class Sigma::Contract::Test < Test::Unit::TestCase
   end
 
   # TODO
-  def test_compile_from_string
-script = <<-SCRIPT.chomp
-SCRIPT
-puts script
-    assert_nothing_raised do
-      contract = Sigma::Contract.compile_from_string(script)
-    end
-  end
+#  def test_compile_from_string
+#script = <<-SCRIPT.chomp
+#SCRIPT
+#puts script
+#    assert_nothing_raised do
+#      contract = Sigma::Contract.compile_from_string(script)
+#    end
+#  end
 end

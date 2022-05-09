@@ -35,7 +35,6 @@ class Sigma::Transaction::Test < Test::Unit::TestCase
 
   #  recipient = Sigma::Address.with_testnet_address(tn_address)
   #  unspent_boxes = Sigma::ErgoBoxes.from_json([json_str])
-  #  # TODO Contract
   #  contract = Sigma::Contract.pay_to_address(recipient)
   #  outbox_value = Sigma::BoxValue.safe_user_min
   #  # TODO ErgoBoxCandidateBuilder
