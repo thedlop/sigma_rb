@@ -130,6 +130,9 @@ module Sigma
   end
 
   class ErgoBoxCandidate
+    extend FFI::Library
+    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    typedef :pointer, :error_pointer
   end
 
   class ErgoBox
