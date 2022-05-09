@@ -16,7 +16,7 @@ class Sigma::ErgoBoxCandidateBuilder::Test < Test::Unit::TestCase
   end
 
   def test_box_value
-    amount = 10000000
+    amount = 43000000
     box_value = Sigma::BoxValue.from_i64(amount)
     p2pk_addr_str = "3WvsT2Gm4EpsM9Pg18PdY6XyhNNMqXDsvJTbbf6ihLvAmSb7u5RN"
     p2pk_addr = Sigma::Address.with_testnet_address(p2pk_addr_str)
@@ -24,17 +24,17 @@ class Sigma::ErgoBoxCandidateBuilder::Test < Test::Unit::TestCase
     ebcb = assert_nothing_raised do
       Sigma::ErgoBoxCandidateBuilder.create(box_value: box_value, contract: contract, creation_height: 0)
     end
-    min_per_byte = 100
+    min_per_byte = 1000000
     ebcb.set_min_box_value_per_byte(min_per_byte)
     assert_equal(min_per_byte, ebcb.get_min_box_value_per_byte)
-    # TODO Requires ErgoBoxCandidate
-    # bytes = ebcb.calc_box_size_bytes
-    #new_amount = 123456789
-    ## TODO
-    #assert_equal(bytes * min_per_byte, ebcb.calc_min_box_value) 
+    assert_nothing_raised do
+      ebcb.calc_box_size_bytes
+    end
 
-    #new_box_value = Sigma::BoxValue.from_i64(new_amount)
-    #ebcb.set_value(new_box_value)
+    new_amount = 123456789
+    new_box_value = Sigma::BoxValue.from_i64(new_amount)
+    ebcb.set_value(new_box_value)
+    assert_equal(new_box_value, ebcb.get_value)
   end
 
   # TODO

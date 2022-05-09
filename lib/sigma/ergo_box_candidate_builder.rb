@@ -45,7 +45,7 @@ module Sigma
 
     def get_value
       pointer = FFI::MemoryPointer.new(:pointer)
-      ergo_lib_ergo_box_candidate_builder_set_value(self.pointer, pointer)
+      ergo_lib_ergo_box_candidate_builder_value(self.pointer, pointer)
       Sigma::BoxValue.with_raw_pointer(pointer)
     end
 
@@ -55,7 +55,6 @@ module Sigma
       res[:value]
     end
 
-    # TODO Requires ErgoBoxCandidate
     def calc_min_box_value
       pointer = FFI::MemoryPointer.new(:pointer)
       error = ergo_lib_ergo_box_candidate_calc_min_box_value(self.pointer, pointer)
