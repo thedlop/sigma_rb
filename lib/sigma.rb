@@ -11,6 +11,7 @@ module Sigma
   require_relative 'sigma/contract'
   require_relative 'sigma/transaction'
   require_relative 'sigma/data_input'
+  require_relative 'sigma/box_selection'
   require_relative 'sigma/ergo_box_candidate_builder'
 end
 
