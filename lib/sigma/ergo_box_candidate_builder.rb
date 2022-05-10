@@ -7,6 +7,7 @@ module Sigma
     ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_ergo_box_candidate_builder_delete, [:pointer], :void
+    attach_function :ergo_lib_ergo_box_candidate_builder_build, [:pointer, :pointer], :error_pointer
     attach_function :ergo_lib_ergo_box_candidate_builder_new, [:pointer, :pointer, :uint32, :pointer], :void
     attach_function :ergo_lib_ergo_box_candidate_builder_set_min_box_value_per_byte, [:pointer, :uint32], :void
     attach_function :ergo_lib_ergo_box_candidate_builder_min_box_value_per_byte, [:pointer], :uint32
@@ -68,7 +69,7 @@ module Sigma
 
     def get_register_value(register_id)
       pointer = FFI::MemoryPointer.new(:pointer)
-      res = ergo_lib_ergo_box_candidate_builder_register_value(self.pointer, register_id, constant.pointer)
+      res = ergo_lib_ergo_box_candidate_builder_register_value(self.pointer, register_id, pointer)
       Util.check_error!(res[:error]) 
       if res[:is_some]
         Sigma::Constant.with_raw_pointer(pointer)

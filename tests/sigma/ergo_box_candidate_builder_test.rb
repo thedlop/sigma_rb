@@ -24,6 +24,7 @@ class Sigma::ErgoBoxCandidateBuilder::Test < Test::Unit::TestCase
     ebcb = assert_nothing_raised do
       Sigma::ErgoBoxCandidateBuilder.create(box_value: box_value, contract: contract, creation_height: 0)
     end
+
     min_per_byte = 1000000
     ebcb.set_min_box_value_per_byte(min_per_byte)
     assert_equal(min_per_byte, ebcb.get_min_box_value_per_byte)
@@ -37,11 +38,39 @@ class Sigma::ErgoBoxCandidateBuilder::Test < Test::Unit::TestCase
     assert_equal(new_box_value, ebcb.get_value)
   end
 
-  # TODO
   def test_register_value
+    amount = 43000000
+    box_value = Sigma::BoxValue.from_i64(amount)
+    p2pk_addr_str = "3WvsT2Gm4EpsM9Pg18PdY6XyhNNMqXDsvJTbbf6ihLvAmSb7u5RN"
+    p2pk_addr = Sigma::Address.with_testnet_address(p2pk_addr_str)
+    contract = Sigma::Contract.pay_to_address(p2pk_addr)
+    ebcb = assert_nothing_raised do
+      Sigma::ErgoBoxCandidateBuilder.create(box_value: box_value, contract: contract, creation_height: 0)
+    end
+    constant_val = 1
+    constant = Sigma::Constant.with_i32(constant_val)
+    ebcb.set_register_value(Sigma::REGISTER_ID_ENUM[:r4], constant)
+    assert_equal(constant, ebcb.get_register_value(Sigma::REGISTER_ID_ENUM[:r4]))
+    box = ebcb.build
+    assert_equal(constant, box.get_register_value(Sigma::REGISTER_ID_ENUM[:r4]))
   end
   
-  # TODO
   def test_delete_register
+    amount = 43000000
+    box_value = Sigma::BoxValue.from_i64(amount)
+    p2pk_addr_str = "3WvsT2Gm4EpsM9Pg18PdY6XyhNNMqXDsvJTbbf6ihLvAmSb7u5RN"
+    p2pk_addr = Sigma::Address.with_testnet_address(p2pk_addr_str)
+    contract = Sigma::Contract.pay_to_address(p2pk_addr)
+    ebcb = assert_nothing_raised do
+      Sigma::ErgoBoxCandidateBuilder.create(box_value: box_value, contract: contract, creation_height: 0)
+    end
+    constant_val = 1
+    constant = Sigma::Constant.with_i32(constant_val)
+    ebcb.set_register_value(Sigma::REGISTER_ID_ENUM[:r4], constant)
+    assert_equal(constant, ebcb.get_register_value(Sigma::REGISTER_ID_ENUM[:r4]))
+    ebcb = ebcb.delete_register_value(Sigma::REGISTER_ID_ENUM[:r4])
+    assert_equal(nil, ebcb.get_register_value(Sigma::REGISTER_ID_ENUM[:r4]))
+    box = ebcb.build
+    assert_equal(nil, box.get_register_value(Sigma::REGISTER_ID_ENUM[:r4]))
   end
 end

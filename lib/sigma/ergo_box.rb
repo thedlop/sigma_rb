@@ -150,7 +150,7 @@ module Sigma
     def get_register_value(register_id)
       constant_ptr = FFI::MemoryPointer.new(:pointer)
       res = ergo_lib_ergo_box_candidate_register_value(self.pointer, register_id, constant_ptr)
-      Util.checkError!(res[:error])
+      Util.check_error!(res[:error])
       if res[:is_some]
         Sigma::Constant.with_raw_pointer(constant_ptr)
       else
@@ -263,7 +263,7 @@ module Sigma
     def get_register_value(register_id)
       constant_ptr = FFI::MemoryPointer.new(:pointer)
       res = ergo_lib_ergo_box_register_value(self.pointer, register_id, constant_ptr)
-      Util.checkError!(res[:error])
+      Util.check_error!(res[:error])
       if res[:is_some]
         Sigma::Constant.with_raw_pointer(constant_ptr)
       else
