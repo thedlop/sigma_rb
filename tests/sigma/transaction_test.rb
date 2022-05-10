@@ -38,9 +38,9 @@ class Sigma::Transaction::Test < Test::Unit::TestCase
   #  contract = Sigma::Contract.pay_to_address(recipient)
   #  outbox_value = Sigma::BoxValue.safe_user_min
   #  outbox = Sigma::ErgoBoxCandidateBuilder.create(box_value: outbox_value, contract: contract, creation_height: 0).build
-  #  # TODO ErgoBoxCandidates
   #  tx_outputs = Sigma::ErgoBoxCandidates.create
   #  tx_outputs.add(outbox)
+  #  TODO: TxBuilder
   #  fee = Sigma::TxBuilder.suggested_tx_fee
   #  change_address = Sigma::Address.with_testnet_address(tn_address)
   #  min_change_value = Sigma::BoxValue.safe_user_min
