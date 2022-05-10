@@ -44,14 +44,12 @@ class Sigma::Transaction::Test < Test::Unit::TestCase
   #  fee = Sigma::TxBuilder.suggested_tx_fee
   #  change_address = Sigma::Address.with_testnet_address(tn_address)
   #  min_change_value = Sigma::BoxValue.safe_user_min
-  #  # TODO DataInputs
   #  data_inputs = Sigma::DataInputs.create
   #  # TODO SimpleBoxSelector
   #  box_selector = Sigma::SimpleBoxSelector.create
   #  target_balance = Sigma::BoxValue.sum_of(outbox_value, fee)
   #  tokens = Sigma::Tokens.create
-  #  # TODO BoxSelector
-  #  box_selection = Sigma::BoxSelector.select(inputs: unspent_boxes, target_balance: target_balance, target_tokens: tokens)
+  #  box_selection = box_selector.select(inputs: unspent_boxes, target_balance: target_balance, target_tokens: tokens)
   #  tx_builder = Sigma::TxBuilder.create( 
   #    box_selection: box_selection,
   #    output_candidates: tx_outputs,

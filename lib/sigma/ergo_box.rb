@@ -2,9 +2,6 @@ require 'ffi'
 require_relative './util.rb'
 
 module Sigma
-  extend FFI::Library
-  typedef :pointer, :error_pointer
-  
   class BoxId
     extend FFI::Library
     ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
