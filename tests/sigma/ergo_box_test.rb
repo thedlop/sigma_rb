@@ -139,4 +139,31 @@ class Sigma::ErgoBox::Test < Test::Unit::TestCase
     assert_equal(2, ergo_boxes_from_json.len)
     assert_equal(ergo_box, ergo_boxes_from_json.get(0))
   end
+
+  def test_ergo_box_candidates
+    # create
+    ebcs = assert_nothing_raised do
+      Sigma::ErgoBoxCandidates.create
+    end
+
+    # len
+    assert_equal(0, ebcs.len)
+
+    # get
+    assert_equal(nil, ebcs.get(0))
+    assert_equal(nil, ebcs.get(1))
+
+    # add
+    amount = 43000000
+    box_value = Sigma::BoxValue.from_i64(amount)
+    p2pk_addr_str = "3WvsT2Gm4EpsM9Pg18PdY6XyhNNMqXDsvJTbbf6ihLvAmSb7u5RN"
+    p2pk_addr = Sigma::Address.with_testnet_address(p2pk_addr_str)
+    contract = Sigma::Contract.pay_to_address(p2pk_addr)
+    ebcb = Sigma::ErgoBoxCandidateBuilder.create(box_value: box_value, contract: contract, creation_height: 0)
+    cbox = ebcb.build
+    ebcs.add(cbox)
+    assert_equal(1, ebcs.len)
+    assert_equal(cbox, ebcs.get(0))
+    assert_equal(nil, ebcs.get(1))
+  end
 end

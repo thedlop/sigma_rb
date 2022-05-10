@@ -198,6 +198,62 @@ module Sigma
     end
   end
 
+  class ErgoBoxCandidates
+    extend FFI::Library
+    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    typedef :pointer, :error_pointer
+    attach_function :ergo_lib_ergo_box_candidates_new, [:pointer], :void
+    attach_function :ergo_lib_ergo_box_candidates_delete, [:pointer], :void
+    attach_function :ergo_lib_ergo_box_candidates_add, [:pointer, :pointer], :void
+    attach_function :ergo_lib_ergo_box_candidates_len, [:pointer], :uint8
+    attach_function :ergo_lib_ergo_box_candidates_get, [:pointer, :uint8, :pointer], ReturnOption.by_value
+
+    attr_accessor :pointer
+
+    def self.create
+      pointer = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_ergo_box_candidates_new(pointer)
+
+      init(pointer)
+    end
+
+    def self.with_raw_pointer(pointer)
+      init(pointer)
+    end
+
+    def len
+      ergo_lib_ergo_box_candidates_len(self.pointer)
+    end
+
+    def add(ergo_box_candidate)
+      ergo_lib_ergo_box_candidates_add(ergo_box_candidate.pointer, self.pointer)
+    end
+
+    def get(index)
+      pointer = FFI::MemoryPointer.new(:pointer)
+      res = ergo_lib_ergo_box_candidates_get(self.pointer, index, pointer)
+      Util.check_error!(res[:error])
+      if res[:is_some]
+        Sigma::ErgoBoxCandidate.with_raw_pointer(pointer)
+      else
+        nil
+      end
+    end
+
+    private
+
+    def self.init(unread_pointer)
+      obj = self.new
+      obj_ptr = unread_pointer.get_pointer(0)
+
+      obj.pointer = FFI::AutoPointer.new(
+        obj_ptr,
+        method(:ergo_lib_ergo_box_candidates_delete)
+      )
+      obj 
+    end
+  end
+
   class ErgoBox
     extend FFI::Library
     ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
