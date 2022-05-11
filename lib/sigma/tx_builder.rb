@@ -58,7 +58,6 @@ module Sigma
       Sigma::DataInputs.with_raw_pointer(pointer)
     end
 
-    # TODO UnsignedTransaction
     def build
       pointer = FFI::MemoryPointer.new(:pointer)
       error = ergo_lib_tx_builder_build(self.pointer, pointer)
