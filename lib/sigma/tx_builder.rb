@@ -47,7 +47,6 @@ module Sigma
       ergo_lib_tx_builder_set_data_inputs(self.pointer, data_inputs.pointer)
     end
 
-    # TODO ContextExtension
     def set_context_extension(box_id, context_extension)
       ergo_lib_tx_builder_set_context_extension(self.pointer, box_id.pointer, context_extension.pointer)
     end

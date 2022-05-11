@@ -170,7 +170,6 @@ module Sigma
       Sigma::BoxId.with_raw_pointer(pointer)
     end
 
-    # TODO ContextExtension
     def get_context_extension
       pointer = FFI::MemoryPointer.new(:pointer)
       ergo_lib_unsigned_input_context_extension(self.pointer, pointer)

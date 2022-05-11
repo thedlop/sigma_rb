@@ -39,7 +39,6 @@ module Sigma
       Sigma::TxId.with_raw_pointer(pointer)
     end
 
-    # TODO UnsignedInputs
     def get_unsigned_inputs
       pointer = FFI::MemoryPointer.new(:pointer)
       ergo_lib_unsigned_tx_inputs(self.pointer, pointer)
