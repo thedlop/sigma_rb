@@ -149,7 +149,6 @@ module Sigma
 
     def to_json_eip12
       s_ptr = FFI::MemoryPointer.new(:pointer, 1)
-      pointer = FFI::MemoryPointer.new(:pointer)
       error = ergo_lib_token_to_json_eip12(self.pointer, s_ptr)
       Util.check_error!(error)
       s_ptr = s_ptr.read_pointer()
