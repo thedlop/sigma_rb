@@ -443,5 +443,113 @@ module Sigma
       obj
     end
   end
+
+  class ErgoBoxAssetsData
+    extend FFI::Library
+    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    typedef :pointer, :error_pointer
+    attach_function :ergo_lib_ergo_box_assets_data_delete, [:pointer], :void
+    attach_function :ergo_lib_ergo_box_assets_data_eq, [:pointer, :pointer], :bool
+    attach_function :ergo_lib_ergo_box_assets_data_new, [:pointer, :pointer, :pointer], :void
+    attach_function :ergo_lib_ergo_box_assets_data_value, [:pointer, :pointer], :void
+    attach_function :ergo_lib_ergo_box_assets_data_tokens, [:pointer, :pointer], :void
+
+    attr_accessor :pointer
+
+    def self.create(box_value:, tokens:)
+      pointer = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_ergo_box_assets_data_new(box_value.pointer, tokens.pointer, pointer)
+      init(pointer)
+    end
+
+    def self.with_raw_pointer(pointer)
+      init(pointer)
+    end
+
+    def get_box_value
+      pointer = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_ergo_box_assets_data_value(self.pointer, pointer)
+      Sigma::BoxValue.with_raw_pointer(pointer)
+    end
+
+    def get_box_tokens
+      pointer = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_ergo_box_assets_data_tokens(self.pointer, pointer)
+      Sigma::Tokens.with_raw_pointer(pointer)
+    end
+
+    def ==(eb_asset_data_two)
+      ergo_lib_ergo_box_assets_data_eq(self.pointer, eb_asset_data_two.pointer)
+    end
+
+    private
+
+    def self.init(unread_pointer)
+      obj = self.new
+      obj_ptr = unread_pointer.get_pointer(0)
+
+      obj.pointer = FFI::AutoPointer.new(
+        obj_ptr,
+        method(:ergo_lib_ergo_box_assets_data_delete)
+      )
+      obj
+    end
+  end
+
+  class ErgoBoxAssetsDataList
+    extend FFI::Library
+    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    typedef :pointer, :error_pointer
+    attach_function :ergo_lib_ergo_box_assets_data_list_new, [:pointer], :void
+    attach_function :ergo_lib_ergo_box_assets_data_list_delete, [:pointer], :void
+    attach_function :ergo_lib_ergo_box_assets_data_list_add, [:pointer, :pointer], :void
+    attach_function :ergo_lib_ergo_box_assets_data_list_len, [:pointer], :uint8
+    attach_function :ergo_lib_ergo_box_assets_data_list_get, [:pointer, :uint8, :pointer], ReturnOption.by_value
+
+    attr_accessor :pointer
+
+    def self.with_raw_pointer(unread_pointer)
+      init(unread_pointer)
+    end
+
+    def self.create
+      pointer = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_ergo_box_assets_data_list_new(pointer)
+
+      init(pointer)
+    end
+
+    def len
+      ergo_lib_ergo_box_assets_data_list_len(self.pointer)
+    end
+
+    def add(ergo_box_assets_data)
+      ergo_lib_ergo_box_assets_data_list_add(ergo_box_assets_data.pointer, self.pointer)
+    end
+
+    def get(index)
+      pointer = FFI::MemoryPointer.new(:pointer)
+      res = ergo_lib_ergo_box_assets_data_list_get(self.pointer, index, pointer)
+      Util.check_error!(res[:error])
+      if res[:is_some]
+        Sigma::ErgoBoxAssetsData.with_raw_pointer(pointer)
+      else
+        nil
+      end
+    end
+
+    private
+
+    def self.init(unread_pointer)
+      obj = self.new
+      obj_ptr = unread_pointer.get_pointer(0)
+
+      obj.pointer = FFI::AutoPointer.new(
+        obj_ptr,
+        method(:ergo_lib_ergo_box_assets_data_list_delete)
+      )
+      obj
+    end
+  end
 end
 

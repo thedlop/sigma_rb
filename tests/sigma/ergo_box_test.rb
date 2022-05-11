@@ -166,4 +166,54 @@ class Sigma::ErgoBox::Test < Test::Unit::TestCase
     assert_equal(cbox, ebcs.get(0))
     assert_equal(nil, ebcs.get(1))
   end
+
+  def test_ergo_box_assets_data
+    # create
+    amount = 12345678
+    box_value = Sigma::BoxValue.from_i64(amount)
+    tokens = Sigma::Tokens.create
+    str = "19475d9a78377ff0f36e9826cec439727bea522f6ffa3bda32e20d2f8b3103ac"
+    token_id = Sigma::TokenId.with_string(str)
+    amount = 12345678
+    token_amount = Sigma::TokenAmount.with_int(amount)
+    token = Sigma::Token.create(token_id: token_id, token_amount: token_amount)
+    tokens.add(token)
+    ergo_box_assets_data = Sigma::ErgoBoxAssetsData.create(box_value: box_value, tokens: tokens)
+    # get_box_value
+    assert_equal(box_value, ergo_box_assets_data.get_box_value)
+    # get_tokens
+    box_tokens = ergo_box_assets_data.get_box_tokens
+    assert_equal(tokens.len, box_tokens.len)
+    assert_equal(tokens.get(0), box_tokens.get(0))
+    assert_equal(tokens.get(1), box_tokens.get(1))
+  end
+
+  def test_ergo_box_assets_data_list
+    # create
+    ebs = assert_nothing_raised do
+      Sigma::ErgoBoxAssetsDataList.create
+    end
+
+    # len
+    assert_equal(0, ebs.len)
+
+    # get
+    assert_equal(nil, ebs.get(0))
+    assert_equal(nil, ebs.get(1))
+
+    # add
+    amount = 12345678
+    box_value = Sigma::BoxValue.from_i64(amount)
+    tokens = Sigma::Tokens.create
+    str = "19475d9a78377ff0f36e9826cec439727bea522f6ffa3bda32e20d2f8b3103ac"
+    token_id = Sigma::TokenId.with_string(str)
+    amount = 12345678
+    token_amount = Sigma::TokenAmount.with_int(amount)
+    token = Sigma::Token.create(token_id: token_id, token_amount: token_amount)
+    tokens.add(token)
+    ergo_box_assets_data = Sigma::ErgoBoxAssetsData.create(box_value: box_value, tokens: tokens)
+    ebs.add(ergo_box_assets_data)
+    assert_equal(1, ebs.len)
+    assert_equal(ergo_box_assets_data, ebs.get(0))
+  end
 end

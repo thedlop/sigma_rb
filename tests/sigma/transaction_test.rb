@@ -45,7 +45,6 @@ class Sigma::Transaction::Test < Test::Unit::TestCase
   #  change_address = Sigma::Address.with_testnet_address(tn_address)
   #  min_change_value = Sigma::BoxValue.safe_user_min
   #  data_inputs = Sigma::DataInputs.create
-  #  # TODO SimpleBoxSelector
   #  box_selector = Sigma::SimpleBoxSelector.create
   #  target_balance = Sigma::BoxValue.sum_of(outbox_value, fee)
   #  tokens = Sigma::Tokens.create
