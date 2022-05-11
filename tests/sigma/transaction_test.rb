@@ -62,4 +62,84 @@ class Sigma::Transaction::Test < Test::Unit::TestCase
       tx.to_json_eip12
     end
   end
+
+  def test_sign_transaction
+    # TODO SecretKey
+    sk = Sigma::SecretKey.create
+    input_contract = Sigma::Contract.pay_to_address(sk.get_address)
+    str = "93d344aa527e18e5a221db060ea1a868f46b61e4537e6e5f69ecc40334c15e38"
+    tx_id = Sigma::TxId.with_string(str)
+    bv = Sigma::BoxValue.from_i64(1000000000)
+    creation_height = 0
+    index = 0
+    tokens = Sigma::Tokens.create
+    input_box = Sigma::ErgoBox.create(box_value: bv, creation_height: creation_height, contract: input_contract, tx_id: tx_id, index: index, tokens: tokens)
+
+    # Create transaction that spends the 'simulated' box
+    tn_address_str = "3WvsT2Gm4EpsM9Pg18PdY6XyhNNMqXDsvJTbbf6ihLvAmSb7u5RN"
+    recipient = Sigma::Address.with_testnet_address(tn_address_str)
+    unspent_boxes = Sigma::ErgoBoxes.create
+    unspent_boxes.add(input_box)
+    contract = Sigma::Contract.pay_to_address(recipient)
+    outbox_value = Sigma::BoxValue.safe_user_min
+    outbox = Sigma::ErgoBoxCandidateBuilder.create(box_value: outbox_value, contract: contract, creation_height: creation_height).build
+    tx_outputs = Sigma::ErgoBoxCandidates.create
+    tx_outputs.add(outbox)
+    fee = Sigma::TxBuilder.suggested_tx_fee
+    change_address = Sigma::Address.with_testnet_address(tn_address_str)
+    min_change_value = Sigma::BoxValue.safe_user_min
+    data_inputs = Sigma::DataInputs.create
+    box_selector = Sigma::SimpleBoxSelector.create
+    target_balance = Sigma::BoxValue.sum_of(outbox_value, fee)
+    empty_tokens = Sigma::Tokens.create
+    box_selection = box_selector.select(inputs: unspent_boxes, target_balance: target_balance, target_tokens: empty_tokens)
+    tx_builder = Sigma::TxBuilder.create(
+      box_selection: box_selection,
+      output_candidates: tx_outputs,
+      current_height: creation_height,
+      fee_amount: fee,
+      change_address: change_address,
+      min_change_value: min_change_value)
+    tx_builder.set_data_inputs(data_inputs)
+    tx = tx_builder.build
+    assert_nothing_raised do
+      tx.to_json_eip12
+    end
+    tx_data_inputs = Sigma::ErgoBoxes.from_json([])
+    # TODO BlockHeader
+    block_headers = []
+    # let blockHeaders = try HeaderTests.generateBlockHeadersFromJSON()
+    # TODO PreHeader
+    pre_header = Sigma::PreHeader.with_block_header(block_headers.get(0))
+    # TODO ErgoStateContext
+    ctx = Sigma::ErgoStateContext.create(pre_header: pre_hader, headers: block_headers)
+    # TODO SecretKeys
+    secret_keys = Sigma::SecretKeys.create
+    secret_keys.add(sk)
+    # TODO Wallet
+    wallet = Sigma::Wallet.create(secrets)
+    signed_tx = wallet.sign_transaction(state_context: ctx, unsigned_tx: tx, boxes_to_spend: unspent_boxes, data_boxes: tx_data_inputs)
+    assert_nothing_raised do
+      signed_tx.to_json_eip12
+    end
+  end
+
+  # TODO
+  def test_mint_token
+  end
+
+  def test_burn_token
+  end
+
+  def test_using_signed_tx_as_input_in_new_tx
+  end
+
+  def test_tx_from_unsigned_tx
+  end
+
+  def test_wallet_mnemonic
+  end
+
+  def test_multi_sig_tx
+  end
 end
