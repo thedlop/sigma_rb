@@ -16,6 +16,7 @@ module Sigma
   require_relative 'sigma/input'
   require_relative 'sigma/context_extension'
   require_relative 'sigma/ergo_box_candidate_builder'
+  require_relative 'sigma/secret_key'
 end
 
 

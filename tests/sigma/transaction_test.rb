@@ -64,7 +64,6 @@ class Sigma::Transaction::Test < Test::Unit::TestCase
   end
 
   def test_sign_transaction
-    # TODO SecretKey
     sk = Sigma::SecretKey.create
     input_contract = Sigma::Contract.pay_to_address(sk.get_address)
     str = "93d344aa527e18e5a221db060ea1a868f46b61e4537e6e5f69ecc40334c15e38"
