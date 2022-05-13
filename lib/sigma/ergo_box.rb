@@ -397,7 +397,7 @@ module Sigma
       init(pointer)
     end
 
-    # Paramter is an ARRAY of JSON Strings
+    # Parameter is an ARRAY of JSON Strings
     def self.from_json(array_of_json_elements)
       boxes = array_of_json_elements.map do |json|
         Sigma::ErgoBox.with_json(json)

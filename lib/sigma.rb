@@ -17,6 +17,8 @@ module Sigma
   require_relative 'sigma/context_extension'
   require_relative 'sigma/ergo_box_candidate_builder'
   require_relative 'sigma/secret_key'
+  require_relative 'sigma/block_header'
+  require_relative 'sigma/pre_header'
 end
 
 
