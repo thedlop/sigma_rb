@@ -19,6 +19,7 @@ module Sigma
   require_relative 'sigma/secret_key'
   require_relative 'sigma/block_header'
   require_relative 'sigma/pre_header'
+  require_relative 'sigma/ergo_state_context'
 end
 
 

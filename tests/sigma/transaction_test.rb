@@ -131,10 +131,11 @@ class Sigma::Transaction::Test < Test::Unit::TestCase
       parentId: "6481752bace5fa5acba5d5ef7124d48826664742d46c974c98a2d60ace229a34"
     }
     header_json = header.to_json
-    block_headers = Sigma::BlockHeaders.from_json([header_json, header_json, header_json])
+    headers_json = Array.new(10) { header_json } 
+    block_headers = Sigma::BlockHeaders.from_json(headers_json)
     pre_header = Sigma::PreHeader.with_block_header(block_headers.get(0))
     # TODO ErgoStateContext
-    ctx = Sigma::ErgoStateContext.create(pre_header: pre_hader, headers: block_headers)
+    ctx = Sigma::ErgoStateContext.create(pre_header: pre_header, headers: block_headers)
     # TODO SecretKeys
     secret_keys = Sigma::SecretKeys.create
     secret_keys.add(sk)
