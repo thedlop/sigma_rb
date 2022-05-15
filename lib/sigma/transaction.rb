@@ -6,6 +6,29 @@ module Sigma
     extend FFI::Library
     ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
     typedef :pointer, :error_pointer
+    attach_function :ergo_lib_tx_delete, [:pointer], :void
+    attr_accessor :pointer
+
+    def self.with_raw_pointer(pointer)
+      init(pointer)
+    end
+
+    # TODO
+    #def to_json_eip12
+    #end
+
+    private
+
+    def self.init(unread_pointer)
+      obj = self.new
+      obj_ptr = unread_pointer.get_pointer(0)
+
+      obj.pointer = FFI::AutoPointer.new(
+        obj_ptr,
+        method(:ergo_lib_tx_delete)
+      )
+      obj
+    end
   end
 
   class UnsignedTransaction

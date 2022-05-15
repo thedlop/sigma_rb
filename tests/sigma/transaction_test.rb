@@ -137,8 +137,7 @@ class Sigma::Transaction::Test < Test::Unit::TestCase
     ctx = Sigma::ErgoStateContext.create(pre_header: pre_header, headers: block_headers)
     secret_keys = Sigma::SecretKeys.create
     secret_keys.add(sk)
-    # TODO Wallet
-    wallet = Sigma::Wallet.create(secrets)
+    wallet = Sigma::Wallet.create_from_secrets(secret_keys)
     signed_tx = wallet.sign_transaction(state_context: ctx, unsigned_tx: tx, boxes_to_spend: unspent_boxes, data_boxes: tx_data_inputs)
     assert_nothing_raised do
       signed_tx.to_json_eip12
