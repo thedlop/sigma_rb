@@ -134,9 +134,7 @@ class Sigma::Transaction::Test < Test::Unit::TestCase
     headers_json = Array.new(10) { header_json } 
     block_headers = Sigma::BlockHeaders.from_json(headers_json)
     pre_header = Sigma::PreHeader.with_block_header(block_headers.get(0))
-    # TODO ErgoStateContext
     ctx = Sigma::ErgoStateContext.create(pre_header: pre_header, headers: block_headers)
-    # TODO SecretKeys
     secret_keys = Sigma::SecretKeys.create
     secret_keys.add(sk)
     # TODO Wallet

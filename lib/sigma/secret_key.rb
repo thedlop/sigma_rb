@@ -29,7 +29,7 @@ module Sigma
       init(pointer)
     end
 
-    def self.from_raw_pointer(pointer)
+    def self.with_raw_pointer(pointer)
       init(pointer)
     end
 
@@ -60,7 +60,59 @@ module Sigma
     end
   end
 
-  # TODO
   class SecretKeys
+    extend FFI::Library
+    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    typedef :pointer, :error_pointer
+    attach_function :ergo_lib_secret_keys_new, [:pointer], :void
+    attach_function :ergo_lib_secret_keys_delete, [:pointer], :void
+    attach_function :ergo_lib_secret_keys_add, [:pointer, :pointer], :void
+    attach_function :ergo_lib_secret_keys_len, [:pointer], :uint8
+    attach_function :ergo_lib_secret_keys_get, [:pointer, :uint8, :pointer], ReturnOption.by_value
+
+    attr_accessor :pointer
+
+    def self.with_raw_pointer(unread_pointer)
+      init(unread_pointer)
+    end
+
+    def self.create
+      pointer = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_secret_keys_new(pointer)
+
+      init(pointer)
+    end
+
+    def len
+      ergo_lib_secret_keys_len(self.pointer)
+    end
+
+    def add(secret_key)
+      ergo_lib_secret_keys_add(secret_key.pointer, self.pointer)
+    end
+
+    def get(index)
+      pointer = FFI::MemoryPointer.new(:pointer)
+      res = ergo_lib_secret_keys_get(self.pointer, index, pointer)
+      Util.check_error!(res[:error])
+      if res[:is_some]
+        Sigma::SecretKey.with_raw_pointer(pointer)
+      else
+        nil
+      end
+    end
+
+    private
+
+    def self.init(unread_pointer)
+      obj = self.new
+      obj_ptr = unread_pointer.get_pointer(0)
+
+      obj.pointer = FFI::AutoPointer.new(
+        obj_ptr,
+        method(:ergo_lib_secret_keys_delete)
+      )
+      obj
+    end
   end
 end
