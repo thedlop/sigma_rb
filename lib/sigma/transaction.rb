@@ -31,6 +31,85 @@ module Sigma
     end
   end
 
+  def CommitmentHint
+    extend FFI::Library
+    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    typedef :pointer, :error_pointer
+    attach_function :ergo_lib_commitment_hint_delete, [:pointer], :void
+    attr_accessor :pointer
+
+    def self.with_raw_pointer(pointer)
+      init(pointer)
+    end
+
+    private
+
+    def self.init(unread_pointer)
+      obj = self.new
+      obj_ptr = unread_pointer.get_pointer(0)
+
+      obj.pointer = FFI::AutoPointer.new(
+        obj_ptr,
+        method(:ergo_lib_commitment_hint_delete)
+      )
+      obj
+    end
+  end
+
+  def HintsBag
+    extend FFI::Library
+    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    typedef :pointer, :error_pointer
+    attach_function :ergo_lib_hints_bag_delete, [:pointer], :void
+    attach_function :ergo_lib_hints_bag_empty, [:pointer], :void
+    attach_function :ergo_lib_hints_bag_add_commitment_hint, [:pointer, :pointer], :void
+    attach_function :ergo_lib_hints_bag_len, [:pointer], :uint
+    attach_function :ergo_lib_hints_bag_get_commitment_hint, [:pointer, :uint, :pointer], ReturnOption.by_value
+    attr_accessor :pointer
+
+    def self.create
+      pointer = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_hints_bag_empty(pointer)
+      init(pointer)
+    end
+
+    def self.with_raw_pointer(pointer)
+      init(pointer)
+    end
+
+    def add_commitment_hint(commitment_hint)
+      ergo_lib_hints_bag_add_commitment_hint(self.pointer, commitment_hint.pointer)
+    end
+
+    def len
+      ergo_lib_hints_bag_add_commitment_len(self.pointer)
+    end
+
+    def get_commitment_hint(index)
+      pointer = FFI::MemoryPointer.new(:pointer)
+      res = ergo_lib_hints_bag_get_commitment_hint(self.pointer, index, pointer)
+      Util.check_error!(res[:error])
+      if res[:is_some]
+        Sigma::CommitmentHint.with_raw_pointer(pointer)
+      else
+        nil
+      end
+    end
+
+    private
+
+    def self.init(unread_pointer)
+      obj = self.new
+      obj_ptr = unread_pointer.get_pointer(0)
+
+      obj.pointer = FFI::AutoPointer.new(
+        obj_ptr,
+        method(:ergo_lib_hints_bag_delete)
+      )
+      obj
+    end
+  end
+
   class UnsignedTransaction
     extend FFI::Library
     ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")

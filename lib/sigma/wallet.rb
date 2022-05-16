@@ -10,6 +10,11 @@ module Sigma
     attach_function :ergo_lib_wallet_from_secrets, [:pointer, :pointer], :void
     attach_function :ergo_lib_wallet_from_mnemonic, [:pointer, :pointer, :pointer], :error_pointer
     attach_function :ergo_lib_wallet_sign_transaction, [:pointer, :pointer, :pointer, :pointer, :pointer, :pointer], :error_pointer
+    attach_function :ergo_lib_wallet_sign_transaction_multi, [:pointer, :pointer, :pointer, :pointer, :pointer, :pointer, :pointer], :error_pointer
+    attach_function :ergo_lib_wallet_sign_reduced_transaction, [:pointer, :pointer, :pointer], :error_pointer
+    attach_function :ergo_lib_wallet_sign_reduced_transaction_multi, [:pointer, :pointer, :pointer, :pointer], :error_pointer
+    attach_function :ergo_lib_wallet_generate_commitments, [:pointer, :pointer, :pointer, :pointer, :pointer, :pointer], :error_pointer
+    attach_function :ergo_lib_wallet_generate_commitments_for_reduced_transaction, [:pointer, :pointer, :pointer], :error_pointer
     attach_function :ergo_lib_wallet_add_secret, [:pointer, :pointer], :error_pointer
     attr_accessor :pointer
 
@@ -38,20 +43,39 @@ module Sigma
       Sigma::Transaction.with_raw_pointer(pointer)
     end
 
-    # TODO
     def sign_transaction_multi(state_context:, unsigned_tx:, boxes_to_spend:, data_boxes:, tx_hints:)
+      pointer = FFI::MemoryPointer.new(:pointer)
+      error = ergo_lib_wallet_sign_transaction_multi(self.pointer, state_context.pointer, unsigned_tx.pointer, boxes_to_spend.pointer, data_boxes.pointer, tx_hints.pointer, pointer)
+      Util.check_error!(error)
+      Sigma::Transaction.with_raw_pointer(pointer)
     end
 
     def sign_reduced_transaction(reduced_tx)
+      pointer = FFI::MemoryPointer.new(:pointer)
+      error = ergo_lib_wallet_sign_reduced_transaction(self.pointer, reduced_tx.pointer, pointer)
+      Util.check_error!(error)
+      Sigma::Transaction.with_raw_pointer(pointer)
     end
 
     def sign_reduced_transaction_multi(reduced_tx:, tx_hints:)
+      pointer = FFI::MemoryPointer.new(:pointer)
+      error = ergo_lib_wallet_sign_reduced_transaction_multi(self.pointer, reduced_tx.pointer, tx_hints.pointer, pointer)
+      Util.check_error!(error)
+      Sigma::Transaction.with_raw_pointer(pointer)
     end
 
     def generate_commitments(state_context:, unsigned_tx:, boxes_to_spend:, data_boxes:)
+      pointer = FFI::MemoryPointer.new(:pointer)
+      error = ergo_lib_wallet_generate_commitments(self.pointer, state_context.pointer, unsigned_tx.pointer, boxes_to_spend.pointer, data_boxes.pointer, pointer)
+      Util.check_error!(error)
+      Sigma::TransactionHintsBag.with_raw_pointer(pointer)
     end
 
     def generate_commitments_for_reduced_transaction(reduced_tx)
+      pointer = FFI::MemoryPointer.new(:pointer)
+      error = ergo_lib_wallet_generate_commitments_for_reduced_transaction(self.pointer, reduced_tx.pointer, pointer)
+      Util.check_error!(error)
+      Sigma::TransactionHintsBag.with_raw_pointer(pointer)
     end
 
     private
