@@ -318,8 +318,122 @@ class Transaction::Test < Test::Unit::TestCase
   end
 
   def test_wallet_mnemonic
+    phrase  = "change me do not use me change me do not use me"
+    pass = "password1234"
+    assert_nothing_raised do
+      Wallet.create_from_mnemonic(phrase, pass)
+    end
   end
 
   def test_multi_sig_tx
+    alice_base16_str = "e726ad60a073a49f7851f4d11a83de6c9c7f99e17314fcce560f00a51a8a3d18"
+    alice_bytes = TestUtils.base16_string_to_bytes(alice_base16_str)
+    alice_secret = SecretKey.from_bytes(alice_bytes)
+    alice_pk_str = "cd03c8e1527efae4be9868cea6767157fcccac66489842738efed0a302e4f81710d0"
+    alice_pk_bytes = TestUtils.base16_string_to_bytes(alice_pk_str)
+
+    bob_base16_str = "9e6616b4e44818d21b8dfdd5ea87eb822480e7856ab910d00f5834dc64db79b3"
+    bob_bytes = TestUtils.base16_string_to_bytes(bob_base16_str)
+    bob_secret = SecretKey.from_bytes(bob_bytes)
+
+    # Pay 2 Script address of a multi_sig contract with contract { alicePK && bobPK }
+    p2k_addr = "JryiCXrc7x5D8AhS9DYX1TDzW5C5mT6QyTMQaptF76EQkM15cetxtYKq3u6LymLZLVCyjtgbTKFcfuuX9LLi49Ec5m2p6cwsg5NyEsCQ7na83yEPN"
+    multi_sig_address = Address.with_testnet_address(p2k_addr)
+    input_contract = Contract.pay_to_address(multi_sig_address)
+    tx_id = TxId.with_string("0000000000000000000000000000000000000000000000000000000000000000")
+    input_box = ErgoBox.create(
+      box_value: BoxValue.from_i64(1000000000),
+      creation_height: 0,
+      contract: input_contract,
+      tx_id: tx_id,
+      index: 0,
+      tokens: Tokens.create
+    )
+    # create a transaction that spends the "simulated" box
+    tn_address = "3WvsT2Gm4EpsM9Pg18PdY6XyhNNMqXDsvJTbbf6ihLvAmSb7u5RN"
+    recipient = Address.with_testnet_address(tn_address)
+    unspent_boxes = ErgoBoxes.create
+    unspent_boxes.add(input_box)
+    contract = Contract.pay_to_address(recipient)
+    outbox_value = BoxValue.safe_user_min
+    outbox = ErgoBoxCandidateBuilder.create(
+      box_value: outbox_value,
+      contract: contract,
+      creation_height: 0
+    ).build
+    tx_outputs = ErgoBoxCandidates.create
+    tx_outputs.add(outbox)
+    fee = TxBuilder.suggested_tx_fee
+    change_address = Address.with_testnet_address(tn_address)
+    min_change_value = BoxValue.safe_user_min
+    box_selector = SimpleBoxSelector.create
+    target_balance = BoxValue.sum_of(outbox_value, fee)
+    box_selection = box_selector.select(
+      inputs: unspent_boxes,
+      target_balance: target_balance,
+      target_tokens: Tokens.create
+    )
+    tx_builder = TxBuilder.create(
+      box_selection: box_selection,
+      output_candidates: tx_outputs,
+      current_height: 0,
+      fee_amount: fee,
+      change_address: change_address,
+      min_change_value: min_change_value
+    )
+    tx = tx_builder.build
+    tx_data_inputs = ErgoBoxes.from_json([])
+    block_headers = TestSeeds.block_headers_from_json
+    pre_header = PreHeader.with_block_header(block_headers.get(0))
+    ctx = ErgoStateContext.create(pre_header: pre_header, headers: block_headers)
+    sks_alice = SecretKeys.create
+    sks_alice.add(alice_secret)
+    wallet_alice = Wallet.create_from_secrets(sks_alice)
+    sks_bob = SecretKeys.create
+    sks_bob.add(bob_secret)
+    wallet_bob = Wallet.create_from_secrets(sks_bob)
+    bob_hints = wallet_bob.generate_commitments(
+      state_context: ctx,
+      unsigned_tx: tx,
+      boxes_to_spend: unspent_boxes,
+      data_boxes: tx_data_inputs
+    ).all_hints_for_input(0)
+    bob_known = bob_hints.get_commitment_hint(0)
+    bob_own = bob_hints.get_commitment_hint(1)
+    hints_bag = HintsBag.create
+    hints_bag.add_commitment_hint(bob_known)
+    alice_tx_hints_bag = TransactionHintsBag.create 
+    alice_tx_hints_bag.add_hints_for_input(index: 0, hints_bag: hints_bag)
+    partial_signed = wallet_alice.sign_transaction_multi(
+      state_context: ctx,
+      unsigned_tx: tx,
+      boxes_to_spend: unspent_boxes,
+      data_boxes: tx_data_inputs,
+      tx_hints: alice_tx_hints_bag
+    )
+    # TODO Propositions
+    real_propositions = Propositions.create
+    simulated_propositions = Propositions.create
+    real_propositions.add_proposition(alice_pk_bytes)
+    bob_hints_bag = TransactionHintsBag.extract_hints_from_signed_transaction(
+        transaction: partial_signed,
+        state_context: ctx,
+        boxes_to_spend: unspent_boxes,
+        data_boxes: tx_data_inputs,
+        real_propositions: real_propositions,
+        simulated_propositions: simulated_propositions
+    ).all_hints_for_input(0)
+    bob_hints_bag.add_commitment_hint(bob_own)
+    bob_tx_hints_bag = TransactionHintsBag.create
+    bob_tx_hints.bag.add_hints_for_input(index: 0, hints_bag: bob_hints_bag)
+    assert_nothing_raised do
+      wallet_bob.sign_transaction_multi(
+        state_context: ctx,
+        unsigned_tx: tx,
+        boxes_to_spend: unspent_boxes,
+        data_boxes: tx_data_inputs,
+        tx_hints: bob_tx_hints_bag
+      )
+    end
   end
 end

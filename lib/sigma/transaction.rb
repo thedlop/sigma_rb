@@ -100,7 +100,7 @@ module Sigma
     end
   end
 
-  def CommitmentHint
+  class CommitmentHint
     extend FFI::Library
     ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
     typedef :pointer, :error_pointer
@@ -125,15 +125,15 @@ module Sigma
     end
   end
 
-  def HintsBag
+  class HintsBag
     extend FFI::Library
     ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_hints_bag_delete, [:pointer], :void
     attach_function :ergo_lib_hints_bag_empty, [:pointer], :void
-    attach_function :ergo_lib_hints_bag_add_commitment_hint, [:pointer, :pointer], :void
+    attach_function :ergo_lib_hints_bag_add_commitment, [:pointer, :pointer], :void
     attach_function :ergo_lib_hints_bag_len, [:pointer], :uint
-    attach_function :ergo_lib_hints_bag_get_commitment_hint, [:pointer, :uint, :pointer], ReturnOption.by_value
+    attach_function :ergo_lib_hints_bag_get, [:pointer, :uint, :pointer], ReturnOption.by_value
     attr_accessor :pointer
 
     def self.create
@@ -147,7 +147,7 @@ module Sigma
     end
 
     def add_commitment_hint(commitment_hint)
-      ergo_lib_hints_bag_add_commitment_hint(self.pointer, commitment_hint.pointer)
+      ergo_lib_hints_bag_add_commitment(self.pointer, commitment_hint.pointer)
     end
 
     def len
@@ -156,7 +156,7 @@ module Sigma
 
     def get_commitment_hint(index)
       pointer = FFI::MemoryPointer.new(:pointer)
-      res = ergo_lib_hints_bag_get_commitment_hint(self.pointer, index, pointer)
+      res = ergo_lib_hints_bag_get(self.pointer, index, pointer)
       Util.check_error!(res[:error])
       if res[:is_some]
         Sigma::CommitmentHint.with_raw_pointer(pointer)
