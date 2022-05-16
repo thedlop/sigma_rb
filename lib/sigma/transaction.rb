@@ -7,15 +7,84 @@ module Sigma
     ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_tx_delete, [:pointer], :void
+    attach_function :ergo_lib_tx_from_unsigned_tx, [:pointer, :pointer, :pointer], :error_pointer
+    attach_function :ergo_lib_tx_from_json, [:pointer, :pointer], :error_pointer
+    attach_function :ergo_lib_tx_id, [:pointer, :pointer], :void
+    attach_function :ergo_lib_tx_inputs, [:pointer, :pointer], :void
+    attach_function :ergo_lib_tx_data_inputs, [:pointer, :pointer], :void
+    attach_function :ergo_lib_tx_output_candidates, [:pointer, :pointer], :void
+    attach_function :ergo_lib_tx_outputs, [:pointer, :pointer], :void
+    attach_function :ergo_lib_tx_to_json, [:pointer, :pointer], :error_pointer
+    attach_function :ergo_lib_tx_to_json_eip12, [:pointer, :pointer], :error_pointer
     attr_accessor :pointer
+
+    def self.create_from_unsigned_tx(unsigned_tx:, proofs:)
+      pointer = FFI::MemoryPointer.new(:pointer)
+      error = ergo_lib_tx_from_unsigned_tx(unsigned_tx.pointer, proofs.pointer, pointer)
+      Util.check_error!(error)
+      init(pointer)
+    end
+
+    def self.create_from_json(json)
+      pointer = FFI::MemoryPointer.new(:pointer)
+      error = ergo_lib_tx_from_json(json, pointer)
+      Util.check_error!(error)
+      init(pointer)
+    end
 
     def self.with_raw_pointer(pointer)
       init(pointer)
     end
 
-    # TODO
-    #def to_json_eip12
-    #end
+    def get_tx_id
+      pointer = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_tx_id(self.pointer, pointer)
+      Sigma::TxId.with_raw_pointer(pointer)
+    end
+
+    def get_inputs
+      pointer = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_tx_inputs(self.pointer, pointer)
+      Sigma::Inputs.with_raw_pointer(pointer)
+    end
+
+    def get_data_inputs
+      pointer = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_tx_data_inputs(self.pointer, pointer)
+      Sigma::DataInputs.with_raw_pointer(pointer)
+    end
+
+    def get_output_candidates
+      pointer = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_tx_output_candidates(self.pointer, pointer)
+      Sigma::ErgoBoxCandidates.with_raw_pointer(pointer)
+    end
+
+    def get_outputs
+      pointer = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_tx_outputs(self.pointer, pointer)
+      Sigma::ErgoBoxes.with_raw_pointer(pointer)
+    end
+
+    def to_json
+      s_ptr = FFI::MemoryPointer.new(:pointer, 1)
+      error = ergo_lib_tx_to_json(self.pointer, s_ptr)
+      Util.check_error!(error)
+      s_ptr = s_ptr.read_pointer()
+      str = s_ptr.read_string().force_encoding('UTF-8')
+      Util.ergo_lib_delete_string(s_ptr)
+      str
+    end
+
+    def to_json_eip12
+      s_ptr = FFI::MemoryPointer.new(:pointer, 1)
+      error = ergo_lib_tx_to_json_eip12(self.pointer, s_ptr)
+      Util.check_error!(error)
+      s_ptr = s_ptr.read_pointer()
+      str = s_ptr.read_string().force_encoding('UTF-8')
+      Util.ergo_lib_delete_string(s_ptr)
+      str
+    end
 
     private
 
@@ -110,15 +179,15 @@ module Sigma
     end
   end
 
-  def TransactionHintsBag
+  class TransactionHintsBag
     extend FFI::Library
     ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_transaction_hints_bag_delete, [:pointer], :void
     attach_function :ergo_lib_transaction_hints_bag_empty, [:pointer], :void
     attach_function :ergo_lib_transaction_hints_bag_add_hints_for_input, [:pointer, :uint, :pointer], :void
-    attach_function :ergo_lib_transaction_hints_all_hints_for_input, [:pointer, :uint, :pointer], :void
-    attach_function :ergo_lib_transaction_hints_extract, [:pointer, :pointer, :pointer, :pointer, :pointer, :pointer, :pointer], :error_pointer
+    attach_function :ergo_lib_transaction_hints_bag_all_hints_for_input, [:pointer, :uint, :pointer], :void
+    attach_function :ergo_lib_transaction_extract_hints, [:pointer, :pointer, :pointer, :pointer, :pointer, :pointer, :pointer], :error_pointer
     attr_accessor :pointer
 
     def self.create
@@ -133,7 +202,7 @@ module Sigma
 
     def self.extract_hints_from_signed_transaction(transaction:, state_context:, boxes_to_spend:, data_boxes:, real_propositions:, simulated_propositions:)
       pointer = FFI::MemoryPointer.new(:pointer)
-      error = ergo_lib_transaction_hints_extract(transaction.pointer, state_context.pointer, boxes_to_spend.pointer, data_boxes.pointer, real_propositions.pointer, simulated_propositions.pointer, pointer)
+      error = ergo_lib_transaction_extract_hints(transaction.pointer, state_context.pointer, boxes_to_spend.pointer, data_boxes.pointer, real_propositions.pointer, simulated_propositions.pointer, pointer)
       Util.check_error!(error)
       init(pointer)
     end
@@ -144,7 +213,7 @@ module Sigma
 
     def all_hints_for_input(index)
       pointer = FFI::MemoryPointer.new(:pointer)
-      ergo_lib_transaction_hints_all_hints_for_input(self.pointer, index, pointer)
+      ergo_lib_transaction_hints_bag_all_hints_for_input(self.pointer, index, pointer)
       Sigma::HintsBag.with_raw_pointer(pointer)
     end
 
