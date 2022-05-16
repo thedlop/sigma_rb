@@ -23,6 +23,7 @@ module Sigma
   require_relative 'sigma/ergo_state_context'
   require_relative 'sigma/byte_array'
   require_relative 'sigma/wallet'
+  require_relative 'sigma/merkle_proof'
 end
 
 

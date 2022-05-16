@@ -27,4 +27,9 @@ module Sigma
       :r9
     ]
 
+  NODE_SIDE_ENUM = enum :node_side,
+    [
+      :left, 0,
+      :right
+    ]
 end
