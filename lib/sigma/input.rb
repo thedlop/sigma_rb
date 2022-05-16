@@ -17,13 +17,13 @@ module Sigma
 
     def get_box_id
       pointer = FFI::MemoryPointer.new(:pointer)
-      ergo_lib_unsigned_input_box_id(self.pointer, pointer)
+      ergo_lib_input_box_id(self.pointer, pointer)
       Sigma::BoxId.with_raw_pointer(pointer)
     end
 
     def get_spending_proof
       pointer = FFI::MemoryPointer.new(:pointer)
-      ergo_lib_unsigned_input_spending_proof(self.pointer, pointer)
+      ergo_lib_input_spending_proof(self.pointer, pointer)
       Sigma::ProverResult.with_raw_pointer(pointer)
     end
 
@@ -143,7 +143,7 @@ module Sigma
 
       obj.pointer = FFI::AutoPointer.new(
         obj_ptr,
-        method(:ergo_lib_input_delete)
+        method(:ergo_lib_prover_result_delete)
       )
       obj
     end

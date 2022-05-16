@@ -273,6 +273,48 @@ class Transaction::Test < Test::Unit::TestCase
   end
 
   def test_tx_from_unsigned_tx
+    tn_address = "3WvsT2Gm4EpsM9Pg18PdY6XyhNNMqXDsvJTbbf6ihLvAmSb7u5RN"
+    recipient = Address.with_testnet_address(tn_address)
+    eb_json =
+      {
+        boxId: "e56847ed19b3dc6b72828fcfb992fdf7310828cf291221269b7ffc72fd66706e",
+        value: 67500000000,
+        ergoTree: "100204a00b08cd021dde34603426402615658f1d970cfa7c7bd92ac81a8b16eeebff264d59ce4604ea02d192a39a8cc7a70173007301",
+        assets: [],
+        creationHeight: 284761,
+        additionalRegisters: {},
+        transactionId: "9148408c04c2e38a6402a7950d6157730fa7d49e9ab3b9cadec481d7769918e9",
+        index: 1
+      }.to_json
+    unspent_boxes = ErgoBoxes.from_json([eb_json])
+    contract = Contract.pay_to_address(recipient)
+    outbox_value = BoxValue.safe_user_min
+    outbox = ErgoBoxCandidateBuilder.create(box_value: outbox_value, contract: contract, creation_height: 0).build
+    tx_outputs = ErgoBoxCandidates.create
+    tx_outputs.add(outbox)
+    fee = TxBuilder.suggested_tx_fee
+    change_address = Address.with_testnet_address(tn_address)
+    min_change_value = BoxValue.safe_user_min
+    data_inputs = DataInputs.create
+    box_selector = SimpleBoxSelector.create
+    target_balance = BoxValue.sum_of(outbox_value, fee)
+    box_selection = box_selector.select(inputs: unspent_boxes, target_balance: target_balance, target_tokens: Tokens.create)
+    tx_builder = TxBuilder.create(
+      box_selection: box_selection,
+      output_candidates: tx_outputs,
+      current_height: 0,
+      fee_amount: fee,
+      change_address: change_address,
+      min_change_value: min_change_value
+    )
+    tx_builder.set_data_inputs(data_inputs)
+    tx = tx_builder.build
+    bytes = [1, 1, 2, 255]
+    proof = ByteArray.from_bytes(bytes)
+    proofs = ByteArrays.create
+    proofs.add(proof)
+    signed_tx = Transaction.create_from_unsigned_tx(unsigned_tx: tx, proofs: proofs)
+    assert_equal(bytes, signed_tx.get_inputs.get(0).get_spending_proof.to_bytes)
   end
 
   def test_wallet_mnemonic

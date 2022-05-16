@@ -20,6 +20,7 @@ module Sigma
   require_relative 'sigma/block_header'
   require_relative 'sigma/pre_header'
   require_relative 'sigma/ergo_state_context'
+  require_relative 'sigma/byte_array'
   require_relative 'sigma/wallet'
 end
 
