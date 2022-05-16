@@ -1,3 +1,5 @@
+require_relative 'test_seeds'
+
 module TestUtils 
   def self.base16_string_to_bytes(str)
     bytes = [] 
