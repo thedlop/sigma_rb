@@ -425,9 +425,9 @@ class Transaction::Test < Test::Unit::TestCase
     ).all_hints_for_input(0)
     bob_hints_bag.add_commitment_hint(bob_own)
     bob_tx_hints_bag = TransactionHintsBag.create
-    bob_tx_hints.bag.add_hints_for_input(index: 0, hints_bag: bob_hints_bag)
+    bob_tx_hints_bag.add_hints_for_input(index: 0, hints_bag: bob_hints_bag)
     assert_nothing_raised do
-      wallet_bob.sign_transaction_multi(
+      stx = wallet_bob.sign_transaction_multi(
         state_context: ctx,
         unsigned_tx: tx,
         boxes_to_spend: unspent_boxes,

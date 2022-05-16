@@ -10,6 +10,7 @@ module Sigma
   require_relative 'sigma/ergo_tree'
   require_relative 'sigma/contract'
   require_relative 'sigma/transaction'
+  require_relative 'sigma/reduced_transaction'
   require_relative 'sigma/tx_builder'
   require_relative 'sigma/data_input'
   require_relative 'sigma/box_selection'
