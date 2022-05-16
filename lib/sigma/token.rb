@@ -19,7 +19,7 @@ module Sigma
       init(unread_pointer)
     end
 
-    def self.with_int(int)
+    def self.with_i64(int)
       ptr = FFI::MemoryPointer.new(:pointer)
       error = ergo_lib_token_amount_from_i64(int, ptr)
       Util.check_error!(error)

@@ -144,8 +144,42 @@ class Sigma::Transaction::Test < Test::Unit::TestCase
     end
   end
 
-  # TODO
   def test_mint_token
+    tn_addr = "3WvsT2Gm4EpsM9Pg18PdY6XyhNNMqXDsvJTbbf6ihLvAmSb7u5RN"
+    recipient = Sigma::Address.with_testnet_address(tn_addr)
+    eb_json = {
+      boxId: "e56847ed19b3dc6b72828fcfb992fdf7310828cf291221269b7ffc72fd66706e",
+      value: 67500000000,
+      ergoTree: "100204a00b08cd021dde34603426402615658f1d970cfa7c7bd92ac81a8b16eeebff264d59ce4604ea02d192a39a8cc7a70173007301",
+      assets: [],
+      creationHeight: 284761,
+      additionalRegisters: {},
+      transactionId: "9148408c04c2e38a6402a7950d6157730fa7d49e9ab3b9cadec481d7769918e9",
+      index: 1
+    }.to_json
+    unspent_boxes = Sigma::ErgoBoxes.from_json([eb_json])
+    contract = Sigma::Contract.pay_to_address(recipient)
+    outbox_value = Sigma::BoxValue.safe_user_min
+    fee = Sigma::TxBuilder.suggested_tx_fee
+    box_selector = Sigma::SimpleBoxSelector.create
+    target_balance = Sigma::BoxValue.sum_of(outbox_value, fee)
+    box_selection = box_selector.select(inputs: unspent_boxes, target_balance:  target_balance, target_tokens: Sigma::Tokens.create)
+    # mint token
+    token_id = Sigma::TokenId.with_box_id(box_selection.get_boxes.get(0).get_box_id)
+    token = Sigma::Token.create(token_id: token_id, token_amount: Sigma::TokenAmount.with_i64(1))
+    box_builder = Sigma::ErgoBoxCandidateBuilder.create(box_value: outbox_value, contract: contract, creation_height: 0).mint_token(token: token, name: "TKN", description: "token desc", num_decimals: 2)
+    outbox = box_builder.build
+    tx_outputs = Sigma::ErgoBoxCandidates.create
+    tx_outputs.add(outbox)
+    change_address = Sigma::Address.with_testnet_address(tn_addr)
+    min_change_value = Sigma::BoxValue.safe_user_min
+    data_inputs = Sigma::DataInputs.create
+    tx_builder = Sigma::TxBuilder.create(box_selection: box_selection, output_candidates: tx_outputs, current_height: 0, fee_amount: fee, change_address: change_address, min_change_value: min_change_value)
+    tx_builder.set_data_inputs(data_inputs)
+    tx = tx_builder.build
+    assert_nothing_raised do
+      tx.to_json_eip12
+    end
   end
 
   def test_burn_token
