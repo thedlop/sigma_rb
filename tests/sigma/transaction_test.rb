@@ -183,6 +183,53 @@ class Sigma::Transaction::Test < Test::Unit::TestCase
   end
 
   def test_burn_token
+    eb_json =
+      {
+        boxId: "0cf7b9e71961cc473242de389c8e594a4e5d630ddd2e4e590083fb0afb386341",
+        value: 11491500000,
+        ergoTree: "100f040005c801056404000e2019719268d230fd9093e4db0e2e42a07883ffe976e77c7419efc1bb218a05d4ba04000500043c040204c096b10204020101040205c096b1020400d805d601b2a5730000d602e4c6a70405d6039c9d720273017302d604b5db6501fed9010463ededed93e4c67204050ec5a7938cb2db6308720473030001730492e4c672040605997202720390e4c6720406059a72027203d605b17204ea02d1edededededed93cbc27201e4c6a7060e917205730593db63087201db6308a793e4c6720104059db072047306d9010641639a8c720601e4c68c72060206057e72050593e4c6720105049ae4c6a70504730792c1720199c1a77e9c9a720573087309058cb072048602730a730bd901063c400163d802d6088c720601d6098c72080186029a7209730ceded8c72080293c2b2a5720900d0cde4c68c720602040792c1b2a5720900730d02b2ad7204d9010663cde4c672060407730e00",
+        assets: [
+          {
+            tokenId: "19475d9a78377ff0f36e9826cec439727bea522f6ffa3bda32e20d2f8b3103ac",
+            amount: 1
+          }
+        ],
+        creationHeight: 348198,
+        additionalRegisters: {
+          R4: "059acd9109",
+          R5: "04f2c02a",
+          R6: "0e20277c78751ff6f68d4dcd082eeea9506324911a875b6b9cd4d177d4fcab061327"
+        },
+        transactionId: "5ed0e572a8c097b053965519a696f413f7be02754345e8ed650377e29a6dedb3",
+        index: 0
+      }.to_json
+      unspent_boxes = Sigma::ErgoBoxes.from_json([eb_json])
+      tn_address = "3WvsT2Gm4EpsM9Pg18PdY6XyhNNMqXDsvJTbbf6ihLvAmSb7u5RN"
+      recipient = Sigma::Address.with_testnet_address(tn_address)
+      token_id = Sigma::TokenId.from_base16_encoded_string("19475d9a78377ff0f36e9826cec439727bea522f6ffa3bda32e20d2f8b3103ac")
+      token = Sigma::Token.create(token_id: token_id, token_amount: Sigma::TokenAmount.with_i64(1))
+      box_selector = Sigma::SimpleBoxSelector.create
+      tokens = Sigma::Tokens.create 
+      tokens.add(token)
+      outbox_value = Sigma::BoxValue.safe_user_min
+      fee = Sigma::TxBuilder.suggested_tx_fee
+      target_balance = Sigma::BoxValue.sum_of(outbox_value, fee)
+      box_selection = box_selector.select(inputs: unspent_boxes, target_balance: target_balance, target_tokens: tokens) 
+      # Select tokens from inputs
+      contract = Sigma::Contract.pay_to_address(recipient)
+      # but don't put selected tokens in the output box (burn them)
+      box_builder = Sigma::ErgoBoxCandidateBuilder.create(box_value: outbox_value, contract: contract, creation_height: 0)
+      outbox = box_builder.build
+      tx_outputs = Sigma::ErgoBoxCandidates.create
+      tx_outputs.add(outbox)
+      change_address = Sigma::Address.with_testnet_address(tn_address)
+      min_change_value = Sigma::BoxValue.safe_user_min
+      data_inputs = Sigma::DataInputs.create
+      tx_builder = Sigma::TxBuilder.create(box_selection: box_selection, output_candidates: tx_outputs, current_height: 0, fee_amount: fee, change_address: change_address, min_change_value: min_change_value)
+      tx_builder.set_data_inputs(data_inputs)
+      assert_nothing_raised do
+        tx_builder.build()
+      end
   end
 
   def test_using_signed_tx_as_input_in_new_tx

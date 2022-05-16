@@ -173,7 +173,7 @@ class Sigma::ErgoBox::Test < Test::Unit::TestCase
     box_value = Sigma::BoxValue.from_i64(amount)
     tokens = Sigma::Tokens.create
     str = "19475d9a78377ff0f36e9826cec439727bea522f6ffa3bda32e20d2f8b3103ac"
-    token_id = Sigma::TokenId.with_string(str)
+    token_id = Sigma::TokenId.from_base16_encoded_string(str)
     amount = 12345678
     token_amount = Sigma::TokenAmount.with_i64(amount)
     token = Sigma::Token.create(token_id: token_id, token_amount: token_amount)
@@ -206,7 +206,7 @@ class Sigma::ErgoBox::Test < Test::Unit::TestCase
     box_value = Sigma::BoxValue.from_i64(amount)
     tokens = Sigma::Tokens.create
     str = "19475d9a78377ff0f36e9826cec439727bea522f6ffa3bda32e20d2f8b3103ac"
-    token_id = Sigma::TokenId.with_string(str)
+    token_id = Sigma::TokenId.from_base16_encoded_string(str)
     amount = 12345678
     token_amount = Sigma::TokenAmount.with_i64(amount)
     token = Sigma::Token.create(token_id: token_id, token_amount: token_amount)

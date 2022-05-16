@@ -20,10 +20,10 @@ class Sigma::Token::Test < Test::Unit::TestCase
 
   def test_token_id_from_string
     str = "19475d9a78377ff0f36e9826cec439727bea522f6ffa3bda32e20d2f8b3103ac"
-    token_id = Sigma::TokenId.with_string(str)
+    token_id = Sigma::TokenId.from_base16_encoded_string(str)
     assert_equal(str, token_id.to_base16_encoded_string)
 
-    token_id_two = Sigma::TokenId.with_string(str)
+    token_id_two = Sigma::TokenId.from_base16_encoded_string(str)
     assert_equal(token_id, token_id_two)
   end
 
@@ -38,7 +38,7 @@ class Sigma::Token::Test < Test::Unit::TestCase
 
   def test_token
     str = "19475d9a78377ff0f36e9826cec439727bea522f6ffa3bda32e20d2f8b3103ac"
-    token_id = Sigma::TokenId.with_string(str)
+    token_id = Sigma::TokenId.from_base16_encoded_string(str)
     amount = 12345678
     token_amount = Sigma::TokenAmount.with_i64(amount)
     token = Sigma::Token.create(token_id: token_id, token_amount: token_amount)
@@ -54,7 +54,7 @@ class Sigma::Token::Test < Test::Unit::TestCase
 
   def test_token_json
     str = "19475d9a78377ff0f36e9826cec439727bea522f6ffa3bda32e20d2f8b3103ac"
-    token_id = Sigma::TokenId.with_string(str)
+    token_id = Sigma::TokenId.from_base16_encoded_string(str)
     amount = 12345678
     token_amount = Sigma::TokenAmount.with_i64(amount)
     token = Sigma::Token.create(token_id: token_id, token_amount: token_amount)
@@ -68,7 +68,7 @@ class Sigma::Token::Test < Test::Unit::TestCase
     assert_equal(0, tokens.len)
     assert_equal(nil, tokens.get(3))
     str = "19475d9a78377ff0f36e9826cec439727bea522f6ffa3bda32e20d2f8b3103ac"
-    token_id = Sigma::TokenId.with_string(str)
+    token_id = Sigma::TokenId.from_base16_encoded_string(str)
     amount = 12345678
     token_amount = Sigma::TokenAmount.with_i64(amount)
     token = Sigma::Token.create(token_id: token_id, token_amount: token_amount)

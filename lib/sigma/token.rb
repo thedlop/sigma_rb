@@ -74,7 +74,7 @@ module Sigma
       init(tid_ptr)
     end
 
-    def self.with_string(str)
+    def self.from_base16_encoded_string(str)
       tid_ptr = FFI::MemoryPointer.new(:pointer)
       error = ergo_lib_token_id_from_str(str, tid_ptr)
       Util.check_error!(error)
