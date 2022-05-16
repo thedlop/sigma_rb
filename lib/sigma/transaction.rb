@@ -110,6 +110,58 @@ module Sigma
     end
   end
 
+  def TransactionHintsBag
+    extend FFI::Library
+    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    typedef :pointer, :error_pointer
+    attach_function :ergo_lib_transaction_hints_bag_delete, [:pointer], :void
+    attach_function :ergo_lib_transaction_hints_bag_empty, [:pointer], :void
+    attach_function :ergo_lib_transaction_hints_bag_add_hints_for_input, [:pointer, :uint, :pointer], :void
+    attach_function :ergo_lib_transaction_hints_all_hints_for_input, [:pointer, :uint, :pointer], :void
+    attach_function :ergo_lib_transaction_hints_extract, [:pointer, :pointer, :pointer, :pointer, :pointer, :pointer, :pointer], :error_pointer
+    attr_accessor :pointer
+
+    def self.create
+      pointer = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_transaction_hints_bag_empty(pointer)
+      init(pointer)
+    end
+
+    def self.with_raw_pointer(pointer)
+      init(pointer)
+    end
+
+    def self.extract_hints_from_signed_transaction(transaction:, state_context:, boxes_to_spend:, data_boxes:, real_propositions:, simulated_propositions:)
+      pointer = FFI::MemoryPointer.new(:pointer)
+      error = ergo_lib_transaction_hints_extract(transaction.pointer, state_context.pointer, boxes_to_spend.pointer, data_boxes.pointer, real_propositions.pointer, simulated_propositions.pointer, pointer)
+      Util.check_error!(error)
+      init(pointer)
+    end
+
+    def add_hints_for_input(index:, hints_bag:)
+      ergo_lib_transaction_hints_bag_add_hints_for_input(self.pointer, index, hints_bag.pointer)
+    end
+
+    def all_hints_for_input(index)
+      pointer = FFI::MemoryPointer.new(:pointer)
+      ergo_lib_transaction_hints_all_hints_for_input(self.pointer, index, pointer)
+      Sigma::HintsBag.with_raw_pointer(pointer)
+    end
+
+    private
+
+    def self.init(unread_pointer)
+      obj = self.new
+      obj_ptr = unread_pointer.get_pointer(0)
+
+      obj.pointer = FFI::AutoPointer.new(
+        obj_ptr,
+        method(:ergo_lib_transaction_hints_bag_delete)
+      )
+      obj
+    end
+  end
+
   class UnsignedTransaction
     extend FFI::Library
     ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
