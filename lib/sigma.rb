@@ -24,6 +24,7 @@ module Sigma
   require_relative 'sigma/byte_array'
   require_relative 'sigma/wallet'
   require_relative 'sigma/merkle_proof'
+  require_relative 'sigma/nipopow'
 end
 
 
