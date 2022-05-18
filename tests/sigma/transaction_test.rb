@@ -411,7 +411,6 @@ class Transaction::Test < Test::Unit::TestCase
       data_boxes: tx_data_inputs,
       tx_hints: alice_tx_hints_bag
     )
-    # TODO Propositions
     real_propositions = Propositions.create
     simulated_propositions = Propositions.create
     real_propositions.add_proposition(alice_pk_bytes)
