@@ -1,10 +1,12 @@
 require 'ffi'
 require_relative './util.rb'
+require 'ffi-compiler/loader'
+require 'json'
 
 module Sigma
   class BoxId
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_box_id_from_str, [:string, :pointer], :error_pointer
     attach_function :ergo_lib_box_id_to_str, [:pointer, :pointer], :void
@@ -61,7 +63,7 @@ module Sigma
 
   class BoxValue
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_box_value_delete, [:pointer], :void
     attach_function :ergo_lib_box_value_eq, [:pointer, :pointer], :bool
@@ -128,7 +130,7 @@ module Sigma
 
   class ErgoBoxCandidate
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_ergo_box_candidate_eq, [:pointer, :pointer], :bool
     attach_function :ergo_lib_ergo_box_candidate_delete, [:pointer], :void
@@ -197,7 +199,7 @@ module Sigma
 
   class ErgoBoxCandidates
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_ergo_box_candidates_new, [:pointer], :void
     attach_function :ergo_lib_ergo_box_candidates_delete, [:pointer], :void
@@ -253,7 +255,7 @@ module Sigma
 
   class ErgoBox
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
 
     attach_function :ergo_lib_ergo_box_id, [:pointer, :pointer], :void
@@ -281,7 +283,8 @@ module Sigma
       eb_pointer = FFI::MemoryPointer.new(:pointer)
       error_pointer = ergo_lib_ergo_box_new(box_value.pointer, creation_height,
         contract.pointer, tx_id.pointer, index, tokens.pointer, eb_pointer)
-      Util.check_error!(error_pointer)
+      #ergo_lib_ergo_box_new(nil, 0, nil, nil, 0, nil, eb_pointer)
+      #Util.check_error!(error_pointer)
       
       init(eb_pointer) 
     end
@@ -376,7 +379,7 @@ module Sigma
 
   class ErgoBoxes
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_ergo_boxes_new, [:pointer], :void
     attach_function :ergo_lib_ergo_boxes_delete, [:pointer], :void
@@ -444,7 +447,7 @@ module Sigma
 
   class ErgoBoxAssetsData
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_ergo_box_assets_data_delete, [:pointer], :void
     attach_function :ergo_lib_ergo_box_assets_data_eq, [:pointer, :pointer], :bool
@@ -496,7 +499,7 @@ module Sigma
 
   class ErgoBoxAssetsDataList
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_ergo_box_assets_data_list_new, [:pointer], :void
     attach_function :ergo_lib_ergo_box_assets_data_list_delete, [:pointer], :void

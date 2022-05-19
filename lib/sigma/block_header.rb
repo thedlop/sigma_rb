@@ -1,10 +1,11 @@
 require 'ffi'
 require_relative './util.rb'
+require 'ffi-compiler/loader'
 
 module Sigma
   class BlockHeader
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_block_header_delete, [:pointer], :void
     attach_function :ergo_lib_block_header_from_json, [:pointer, :pointer], :error_pointer
@@ -48,7 +49,7 @@ module Sigma
 
   class BlockHeaders
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_block_headers_new, [:pointer], :void
     attach_function :ergo_lib_block_headers_delete, [:pointer], :void
@@ -115,7 +116,7 @@ module Sigma
 
   class BlockId
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_block_id_delete, [:pointer], :void
     attr_accessor :pointer
@@ -140,7 +141,7 @@ module Sigma
 
   class BlockIds
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_block_ids_new, [:pointer], :void
     attach_function :ergo_lib_block_ids_delete, [:pointer], :void

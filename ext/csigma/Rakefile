@@ -1,0 +1,7 @@
+require 'ffi-compiler/compile_task'
+
+FFI::Compiler::CompileTask.new('csigma') do |c|
+  c.have_header?('ergo_lib.h')
+  c.have_library?('ergo')
+  c.ldflags << "-Wl,--whole-archive,-lergo,--no-whole-archive"
+end

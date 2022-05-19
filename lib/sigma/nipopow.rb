@@ -1,11 +1,11 @@
-
 require 'ffi'
 require_relative './util.rb'
+require 'ffi-compiler/loader'
 
 module Sigma
   class NipopowProof
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_nipopow_proof_delete, [:pointer], :void
     attach_function :ergo_lib_nipopow_proof_from_json, [:pointer, :pointer], :error_pointer
@@ -54,7 +54,7 @@ module Sigma
   
   class NipopowVerifier
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_nipopow_verifier_delete, [:pointer], :void
     attach_function :ergo_lib_nipopow_verifier_new, [:pointer,:pointer], :void
@@ -95,7 +95,7 @@ module Sigma
 
   class PoPowHeader
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_popow_header_delete, [:pointer], :void
     attach_function :ergo_lib_popow_header_from_json, [:pointer, :pointer], :error_pointer

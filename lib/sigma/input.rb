@@ -1,10 +1,11 @@
 require 'ffi'
 require_relative './util.rb'
+require 'ffi-compiler/loader'
 
 module Sigma
   class Input
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attr_accessor :pointer
     attach_function :ergo_lib_input_delete, [:pointer], :void
@@ -43,7 +44,7 @@ module Sigma
 
   class Inputs
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_inputs_new, [:pointer], :void
     attach_function :ergo_lib_inputs_delete, [:pointer], :void
@@ -99,7 +100,7 @@ module Sigma
 
   class ProverResult
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_prover_result_delete, [:pointer], :void
     attach_function :ergo_lib_prover_result_to_json, [:pointer, :pointer], :error_pointer
@@ -152,7 +153,7 @@ module Sigma
 
   class UnsignedInput
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_unsigned_input_delete, [:pointer], :void
     attach_function :ergo_lib_unsigned_input_box_id, [:pointer, :pointer], :void
@@ -192,7 +193,7 @@ module Sigma
 
   class UnsignedInputs
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_unsigned_inputs_new, [:pointer], :void
     attach_function :ergo_lib_unsigned_inputs_delete, [:pointer], :void

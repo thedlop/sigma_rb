@@ -1,18 +1,16 @@
 require 'ffi'
 require_relative './util.rb'
+require 'ffi-compiler/loader'
 
 module Sigma
   class TokenAmount
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
-
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
-
     attach_function :ergo_lib_token_amount_delete, [:pointer], :void
     attach_function :ergo_lib_token_amount_from_i64, [:int64, :pointer], :error_pointer
     attach_function :ergo_lib_token_amount_as_i64, [:pointer], :int64
     attach_function :ergo_lib_token_amount_eq, [:pointer, :pointer], :bool
-
     attr_accessor :pointer
 
     def self.with_raw_pointer(unread_pointer)
@@ -51,16 +49,13 @@ module Sigma
 
   class TokenId
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
-
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
-
     attach_function :ergo_lib_token_id_from_box_id, [:pointer, :pointer], :void
     attach_function :ergo_lib_token_id_from_str, [:pointer, :pointer], :error_pointer
     attach_function :ergo_lib_token_id_delete, [:pointer], :void
     attach_function :ergo_lib_token_id_eq, [:pointer, :pointer], :bool
     attach_function :ergo_lib_token_id_to_str, [:pointer, :pointer], :void
-
     attr_accessor :pointer
 
     def self.with_raw_pointer(tid_pointer)
@@ -111,17 +106,14 @@ module Sigma
 
   class Token
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
-
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
-
     attach_function :ergo_lib_token_new, [:pointer, :pointer, :pointer], :void
     attach_function :ergo_lib_token_get_id, [:pointer, :pointer], :void
     attach_function :ergo_lib_token_get_amount, [:pointer, :pointer], :void
     attach_function :ergo_lib_token_delete, [:pointer], :void
     attach_function :ergo_lib_token_to_json_eip12, [:pointer, :pointer], :error_pointer
     attach_function :ergo_lib_token_eq, [:pointer, :pointer], :bool
-
     attr_accessor :pointer
 
     def self.create(token_id:, token_amount:)
@@ -177,16 +169,13 @@ module Sigma
 
   class Tokens
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
-
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
-
     attach_function :ergo_lib_tokens_delete, [:pointer], :void
     attach_function :ergo_lib_tokens_new, [:pointer], :void
     attach_function :ergo_lib_tokens_len, [:pointer], :uint8
     attach_function :ergo_lib_tokens_get, [:pointer, :uint8, :pointer], ReturnOption.by_value
     attach_function :ergo_lib_tokens_add, [:pointer, :pointer], :error_pointer
-
     attr_accessor :pointer
 
     def self.create

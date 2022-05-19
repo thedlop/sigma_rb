@@ -1,0 +1,11 @@
+Makefile
+mkmf.log
+ext/csigma/x86_64-linux
+ext/libergo.a
+ext/libergo.so
+ext/check_symbols.sh
+ext/compile.sh
+ext/sigma.c
+ext/sigma.o
+ext/libergo.h
+temp/**

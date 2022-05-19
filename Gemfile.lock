@@ -2,7 +2,11 @@ GEM
   remote: https://rubygems.org/
   specs:
     ffi (1.15.5)
+    ffi-compiler (1.0.1)
+      ffi (>= 1.0.0)
+      rake
     power_assert (2.0.1)
+    rake (13.0.6)
     test-unit (3.5.1)
       power_assert
 
@@ -11,6 +15,7 @@ PLATFORMS
 
 DEPENDENCIES
   ffi (= 1.15.5)
+  ffi-compiler (= 1.0.1)
   test-unit (= 3.5.1)
 
 BUNDLED WITH

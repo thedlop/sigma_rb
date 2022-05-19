@@ -1,10 +1,11 @@
 require 'ffi'
 require_relative './util.rb'
+require 'ffi-compiler/loader'
 
 module Sigma
   class TxBuilder
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_tx_builder_delete, [:pointer], :void
     attach_function :ergo_lib_tx_builder_new, [:pointer, :pointer, :uint32, :pointer, :pointer, :pointer, :pointer], :void

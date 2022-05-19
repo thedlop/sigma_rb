@@ -1,9 +1,11 @@
 require 'ffi'
 require_relative './util.rb'
+require 'ffi-compiler/loader'
+
 module Sigma
   class Constant
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_constant_eq, [:pointer, :pointer], :bool
     attach_function :ergo_lib_constant_from_base16, [:string, :pointer], :error_pointer
@@ -16,7 +18,6 @@ module Sigma
     attach_function :ergo_lib_constant_from_ecpoint_bytes, [:pointer, :uint, :pointer], :error_pointer
     attach_function :ergo_lib_constant_from_ergo_box, [:pointer, :pointer], :error_pointer
     attach_function :ergo_lib_constant_delete, [:pointer], :void
-
     attr_accessor :pointer
 
     def self.with_ergo_box(ergo_box)

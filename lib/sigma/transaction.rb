@@ -1,10 +1,11 @@
 require 'ffi'
 require_relative './util.rb'
+require 'ffi-compiler/loader'
 
 module Sigma
   class Transaction
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_tx_delete, [:pointer], :void
     attach_function :ergo_lib_tx_from_unsigned_tx, [:pointer, :pointer, :pointer], :error_pointer
@@ -102,7 +103,7 @@ module Sigma
 
   class CommitmentHint
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_commitment_hint_delete, [:pointer], :void
     attr_accessor :pointer
@@ -127,7 +128,7 @@ module Sigma
 
   class HintsBag
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_hints_bag_delete, [:pointer], :void
     attach_function :ergo_lib_hints_bag_empty, [:pointer], :void
@@ -181,7 +182,7 @@ module Sigma
 
   class TransactionHintsBag
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_transaction_hints_bag_delete, [:pointer], :void
     attach_function :ergo_lib_transaction_hints_bag_empty, [:pointer], :void
@@ -233,7 +234,7 @@ module Sigma
 
   class UnsignedTransaction
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_unsigned_tx_delete, [:pointer], :void
     attach_function :ergo_lib_unsigned_tx_from_json, [:pointer, :pointer], :error_pointer
@@ -316,7 +317,7 @@ module Sigma
 
   class TxId
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_tx_id_delete, [:pointer], :void
     attach_function :ergo_lib_tx_id_from_str, [:pointer, :pointer], :error_pointer

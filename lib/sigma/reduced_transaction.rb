@@ -1,10 +1,11 @@
 require 'ffi'
 require_relative './util.rb'
+require 'ffi-compiler/loader'
 
 module Sigma
   class ReducedTransaction
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_reduced_tx_delete, [:pointer], :void
     attach_function :ergo_lib_reduced_tx_from_unsigned_tx, [:pointer, :pointer, :pointer, :pointer, :pointer], :error_pointer
@@ -50,7 +51,7 @@ module Sigma
 
   class Propositions
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_propositions_delete, [:pointer], :void
     attach_function :ergo_lib_propositions_new, [:pointer], :void

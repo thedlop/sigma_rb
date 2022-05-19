@@ -1,19 +1,18 @@
 require 'ffi'
 require_relative './util.rb'
+require 'ffi-compiler/loader'
 
 module Sigma
   class Address
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
-
     attach_function :ergo_lib_address_from_testnet, [:pointer,:pointer], :error_pointer
     attach_function :ergo_lib_address_from_mainnet, [:pointer,:pointer], :error_pointer
     attach_function :ergo_lib_address_from_base58, [:pointer,:pointer], :error_pointer
     attach_function :ergo_lib_address_to_base58, [:pointer, Sigma::NETWORK_PREFIX_ENUM, :pointer], :void
     attach_function :ergo_lib_address_delete, [:pointer], :void
     attach_function :ergo_lib_address_type_prefix, [:pointer], :uint8
-
     attr_accessor :pointer
 
     def self.with_raw_pointer(unread_pointer)

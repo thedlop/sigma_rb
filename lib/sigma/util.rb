@@ -1,7 +1,10 @@
+require 'ffi'
+require 'ffi-compiler/loader'
+
 module Sigma
   module Util
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
 
     class ErgoError < StandardError; end
     

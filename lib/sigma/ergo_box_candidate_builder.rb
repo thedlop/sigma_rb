@@ -1,10 +1,11 @@
 require 'ffi'
 require_relative './util.rb'
+require 'ffi-compiler/loader'
 
 module Sigma
   class ErgoBoxCandidateBuilder
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_ergo_box_candidate_builder_delete, [:pointer], :void
     attach_function :ergo_lib_ergo_box_candidate_builder_build, [:pointer, :pointer], :error_pointer

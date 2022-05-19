@@ -25,6 +25,8 @@ module Sigma
   require_relative 'sigma/wallet'
   require_relative 'sigma/merkle_proof'
   require_relative 'sigma/nipopow'
+
+  SIGMA_RUST_VERSION = '0.16.0'
 end
 
 

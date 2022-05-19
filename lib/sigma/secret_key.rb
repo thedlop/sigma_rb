@@ -1,10 +1,11 @@
 require 'ffi'
 require_relative './util.rb'
+require 'ffi-compiler/loader'
 
 module Sigma
   class SecretKey
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_secret_key_delete, [:pointer], :void
     attach_function :ergo_lib_secret_key_generate_random, [:pointer], :void
@@ -62,7 +63,7 @@ module Sigma
 
   class SecretKeys
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
     attach_function :ergo_lib_secret_keys_new, [:pointer], :void
     attach_function :ergo_lib_secret_keys_delete, [:pointer], :void

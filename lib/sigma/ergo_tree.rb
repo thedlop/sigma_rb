@@ -1,13 +1,12 @@
 require 'ffi'
 require_relative './util.rb'
+require 'ffi-compiler/loader'
 
 module Sigma
   class ErgoTree
     extend FFI::Library
-    ffi_lib File.join(File.dirname(__FILE__), "../../ext/libsigma.so")
-
+    ffi_lib FFI::Compiler::Loader.find('csigma')
     typedef :pointer, :error_pointer
-
     attach_function :ergo_lib_ergo_tree_delete, [:pointer], :void
     attach_function :ergo_lib_ergo_tree_eq, [:pointer, :pointer], :bool
     attach_function :ergo_lib_ergo_tree_from_base16_bytes, [:pointer, :pointer], :error_pointer
@@ -19,7 +18,6 @@ module Sigma
     attach_function :ergo_lib_ergo_tree_with_constant, [:pointer, :uint8, :pointer, :pointer], :error_pointer
     attach_function :ergo_lib_ergo_tree_constants_len, [:pointer], ReturnNumUsize.by_value
     attach_function :ergo_lib_ergo_tree_get_constant, [:pointer, :uint8, :pointer], ReturnOption.by_value
-
     attr_accessor :pointer
 
     def self.with_raw_pointer(unread_pointer)
