@@ -9,3 +9,4 @@ ext/sigma.c
 ext/sigma.o
 ext/libergo.h
 temp/**
+*.gem
