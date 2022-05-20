@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'sigma_rb'
-  s.version     = '0.1.1'
+  s.version     = '0.1.2'
   s.summary     = "Ruby bindings for Ergo types, abstractions, and interfaces provided by Sigma-Rust."
   s.description = "Ruby bindings for the Ergo-Lib crate of Sigma-Rust. Specifically for chain types and abstractions, json serialization, box selection for tx inputs, tx creation, and signing."
   s.authors     = ["Dark Lord of Programming"]
@@ -16,4 +16,5 @@ Gem::Specification.new do |s|
   s.extensions << "ext/Rakefile"
   s.test_files = Dir["tests/**/*.rb"]
   s.require_paths = ["lib"]
+  s.required_ruby_version = '>= 3.0.1'
 end
