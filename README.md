@@ -25,9 +25,10 @@ cargo build --release -p ergo-lib-c
 
 This will build a release version of `libergo.a` located at `target/release/libergo.a` from the root directory.  You will need to copy/move this to a C LIBRARY search path on your system. For my system I can use `/usr/local/lib` . This usually depends on OS.   
 
-So I did this to copy `libergo.a` to `/usr/local/lib` .
-`sudo cp ../../target/release/libergo.a /usr/local/lib/`
-
+So I did this to copy `libergo.a` to `/usr/local/lib` :  
+```
+sudo cp ../../target/release/libergo.a /usr/local/lib/
+```  
 
 ### Build ergo-lib-c header file
 While still in the `bindings/ergo-lib_c` directory you can generate the header file with:
