@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'bundler/setup'
 require 'test/unit'
+require 'json'
 
 require_relative '../../lib/sigma.rb'
 require_relative '../test_utils.rb'

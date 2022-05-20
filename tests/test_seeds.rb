@@ -1,4 +1,5 @@
 require_relative '../lib/sigma'
+require 'json'
 
 module TestSeeds
   def self.block_header_json
