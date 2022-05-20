@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    sigma_rb (0.1.0)
+    sigma_rb (0.1.1)
       ffi-compiler (= 1.0.1)
       rake (~> 13.0)
 

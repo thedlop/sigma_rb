@@ -1,6 +1,6 @@
 Makefile
 mkmf.log
-ext/csigma/x86_64-linux
+ext/x86_64-linux
 ext/libergo.a
 ext/libergo.so
 ext/check_symbols.sh
