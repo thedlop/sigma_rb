@@ -99,7 +99,8 @@ module Sigma
     end
 
     # Encode Address to a base58 string
-    # @param network_prefix [NETWORK_PREFIX_ENUM]
+    # @see Sigma::NETWORK_PREFIX_ENUM
+    # @param network_prefix [Integer]
     # @return [String]
     def to_base58(network_prefix)
       s_ptr = FFI::MemoryPointer.new(:pointer, 1)
@@ -112,6 +113,7 @@ module Sigma
     end
 
     # Get the Network Prefix type of Address
+    # @see Sigma::NETWORK_PREFIX_ENUM
     # @return [Integer]
     def type_prefix
       ergo_lib_address_type_prefix(self.pointer)
