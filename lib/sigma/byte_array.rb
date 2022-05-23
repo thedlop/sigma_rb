@@ -3,6 +3,7 @@ require_relative './util.rb'
 require 'ffi-compiler/loader'
 
 module Sigma
+  # Array of Bytes
   class ByteArray
     extend FFI::Library
     ffi_lib FFI::Compiler::Loader.find('csigma')
@@ -11,6 +12,9 @@ module Sigma
     attach_function :ergo_lib_byte_array_from_raw_parts, [:pointer, :uint, :pointer], :error_pointer
     attr_accessor :pointer
 
+    # Create ByteArray of Array of unsigned 8-bit ints (bytes)
+    # @param bytes [Array<uint8>] Array of 8-bit integers (0-255)
+    # @return [ByteArray]
     def self.from_bytes(bytes)
       pointer = FFI::MemoryPointer.new(:pointer)
       b_ptr = FFI::MemoryPointer.new(:uint8, bytes.size)
@@ -20,6 +24,10 @@ module Sigma
       init(pointer)
     end
 
+    # Takes ownership of an existing ByteArray Pointer.
+    # @note A user of sigma_rb generally does not need to call this function
+    # @param pointer [FFI::MemoryPointer]
+    # @return [ByteArray]
     def self.with_raw_pointer(pointer)
       init(pointer)
     end
@@ -38,6 +46,7 @@ module Sigma
     end
   end
 
+  # An ordered collection of ByteArray
   class ByteArrays
     extend FFI::Library
     ffi_lib FFI::Compiler::Loader.find('csigma')
@@ -50,10 +59,16 @@ module Sigma
 
     attr_accessor :pointer
 
+    # Takes ownership of an existing ByteArrays Pointer.
+    # @note A user of sigma_rb generally does not need to call this function
+    # @param pointer [FFI::MemoryPointer]
+    # @return [ByteArrays]
     def self.with_raw_pointer(unread_pointer)
       init(unread_pointer)
     end
 
+    # Create an empty collection
+    # @return [ByteArrays]
     def self.create
       pointer = FFI::MemoryPointer.new(:pointer)
       ergo_lib_byte_arrays_new(pointer)
@@ -61,14 +76,21 @@ module Sigma
       init(pointer)
     end
 
+    # Get length of collection
+    # @return [Integer]
     def len
       ergo_lib_byte_arrays_len(self.pointer)
     end
 
+    # Add an item to collection
+    # @param byte_array [ByteArray]
     def add(byte_array)
       ergo_lib_byte_arrays_add(byte_array.pointer, self.pointer)
     end
 
+    # Get item at specified index or return nil if no item exists
+    # @params index [Integer]
+    # @return [ByteArray, nil]
     def get(index)
       pointer = FFI::MemoryPointer.new(:pointer)
       res = ergo_lib_byte_arrays_get(self.pointer, index, pointer)
