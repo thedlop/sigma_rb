@@ -3,7 +3,7 @@ require_relative './util.rb'
 require 'ffi-compiler/loader'
 
 module Sigma
-  # Represents data available of the Block Header in a Sigma propositions.
+  # Represents data available of the Block Header in Sigma propositions.
   class BlockHeader
     extend FFI::Library
     ffi_lib FFI::Compiler::Loader.find('csigma')
@@ -23,7 +23,7 @@ module Sigma
       init(pointer)
     end
 
-    # Takes ownership of an existing BlockHeader Pointer.  
+    # Takes ownership of an existing BlockHeader Pointer.
     # @note A user of sigma_rb generally does not need to call this function
     # @param pointer [FFI::MemoryPointer]
     # @return [BlockHeader]
@@ -40,6 +40,7 @@ module Sigma
     end
 
     # Equality check between two BlockHeaders 
+    # @param bh_two [BlockHeader]
     # @return [bool]
     def ==(bh_two)
       ergo_lib_block_header_eq(self.pointer, bh_two.pointer)
@@ -71,7 +72,7 @@ module Sigma
     attach_function :ergo_lib_block_headers_get, [:pointer, :uint8, :pointer], ReturnOption.by_value
     attr_accessor :pointer
 
-    # Takes ownership of an existing BlockHeaders Pointer.  
+    # Takes ownership of an existing BlockHeaders Pointer.
     # @note A user of sigma_rb generally does not need to call this function
     # @param pointer [FFI::MemoryPointer]
     # @return [BlockHeaders]
@@ -150,7 +151,7 @@ module Sigma
     attach_function :ergo_lib_block_id_delete, [:pointer], :void
     attr_accessor :pointer
 
-    # Takes ownership of an existing BlockId Pointer.  
+    # Takes ownership of an existing BlockId Pointer.
     # @note A user of sigma_rb generally does not need to call this function
     # @param pointer [FFI::MemoryPointer]
     # @return [BlockId]
@@ -184,7 +185,7 @@ module Sigma
     attach_function :ergo_lib_block_ids_get, [:pointer, :uint8, :pointer], ReturnOption.by_value
     attr_accessor :pointer
 
-    # Takes ownership of an existing BlockIds Pointer.  
+    # Takes ownership of an existing BlockIds Pointer.
     # @note A user of sigma_rb generally does not need to call this function
     # @param pointer [FFI::MemoryPointer]
     # @return [BlockIds]

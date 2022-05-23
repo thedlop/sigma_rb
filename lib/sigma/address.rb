@@ -57,7 +57,7 @@ module Sigma
     attach_function :ergo_lib_address_type_prefix, [:pointer], :uint8
     attr_accessor :pointer
 
-    # Takes ownership of an existing Address Pointer.  
+    # Takes ownership of an existing Address Pointer.
     # @note A user of sigma_rb generally does not need to call this function
     # @param pointer [FFI::MemoryPointer]
     # @return [Address]
