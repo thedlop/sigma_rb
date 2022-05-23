@@ -58,7 +58,7 @@ module Sigma
     attr_accessor :pointer
 
     # Takes ownership of an existing Address Pointer.  
-    # Note: A user of sigma_rb generally does not need to call this function
+    # @note A user of sigma_rb generally does not need to call this function
     # @param pointer [FFI::MemoryPointer]
     # @return [Address]
     def self.with_raw_pointer(pointer)
