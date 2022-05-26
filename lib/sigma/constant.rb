@@ -125,7 +125,7 @@ module Sigma
 
     # Equality check for two Constants
     # @param constant_two [Constant]
-    # @return [Constant]
+    # @return [bool]
     def ==(constant_two)
       ergo_lib_constant_eq(self.pointer, constant_two.pointer)
     end

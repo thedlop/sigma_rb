@@ -3,6 +3,7 @@ require_relative './util.rb'
 require 'ffi-compiler/loader'
 
 module Sigma
+  # Inputs, that are used to enrich script context, but won't be spent by the transaction
   class DataInput
     extend FFI::Library
     ffi_lib FFI::Compiler::Loader.find('csigma')
@@ -12,16 +13,25 @@ module Sigma
     attach_function :ergo_lib_data_input_delete, [:pointer], :void
     attr_accessor :pointer
 
+    # Parse BoxId and create DataInput
+    # @param box_id [BoxId]
+    # @return [DataInput]
     def self.with_box_id(box_id)
       pointer = FFI::MemoryPointer.new(:pointer)
       ergo_lib_data_input_new(box_id.pointer, pointer) 
       init(pointer)
     end
   
+    # Takes ownership of an existing DataInput Pointer.
+    # @note A user of sigma_rb generally does not need to call this function
+    # @param pointer [FFI::MemoryPointer]
+    # @return [DataInput]
     def self.with_raw_pointer(pointer)
       init(pointer)
     end
 
+    # Get BoxId
+    # @return [BoxId]
     def get_box_id
       pointer = FFI::MemoryPointer.new(:pointer)
       ergo_lib_data_input_new(self.pointer, pointer) 
@@ -43,6 +53,7 @@ module Sigma
 
   end
 
+  # An ordered collection of DataInput
   class DataInputs
     extend FFI::Library
     ffi_lib FFI::Compiler::Loader.find('csigma')
@@ -54,10 +65,16 @@ module Sigma
     attach_function :ergo_lib_data_inputs_get, [:pointer, :uint8, :pointer], ReturnOption.by_value
     attr_accessor :pointer
 
+    # Takes ownership of an existing DataInputs Pointer.
+    # @note A user of sigma_rb generally does not need to call this function
+    # @param pointer [FFI::MemoryPointer]
+    # @return [DataInputs]
     def self.with_raw_pointer(unread_pointer)
       init(unread_pointer)
     end
 
+    # Create an empty collection
+    # @return [DataInputs]
     def self.create
       pointer = FFI::MemoryPointer.new(:pointer)
       ergo_lib_data_inputs_new(pointer)
@@ -65,14 +82,21 @@ module Sigma
       init(pointer)
     end
 
+    # Get length of DataInputs
+    # @return [Integer]
     def len
       ergo_lib_data_inputs_len(self.pointer)
     end
 
+    # Add a DataInput
+    # @param data_input [DataInput]
     def add(data_input)
       ergo_lib_data_inputs_add(data_input.pointer, self.pointer)
     end
 
+    # Get item at specified index or return nil if no item exists
+    # @params index [Integer]
+    # @return [DataInput, nil]
     def get(index)
       pointer = FFI::MemoryPointer.new(:pointer)
       res = ergo_lib_data_inputs_get(self.pointer, index, pointer)
