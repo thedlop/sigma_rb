@@ -3,6 +3,7 @@ require_relative './util.rb'
 require 'ffi-compiler/loader'
 
 module Sigma
+  # Blockchain state (last headers, etc)
   class ErgoStateContext
     extend FFI::Library
     ffi_lib FFI::Compiler::Loader.find('csigma')
@@ -13,6 +14,10 @@ module Sigma
 
     attr_accessor :pointer
 
+    # Createa new context
+    # @param pre_header [PreHeader]
+    # @param headers [Headers]
+    # @return [ErgoStateContext]
     def self.create(pre_header:, headers:)
       pointer = FFI::MemoryPointer.new(:pointer)
       error = ergo_lib_ergo_state_context_new(pre_header.pointer, headers.pointer, pointer)
@@ -20,6 +25,9 @@ module Sigma
       init(pointer)
     end
 
+    # Equality check
+    # @param esc_two [ErgoStateContext]
+    # @return [bool]
     def ==(esc_two)
       ergo_lib_ergo_state_context_eq(self.pointer, esc.pointer)
     end
