@@ -11,9 +11,11 @@ class Sigma::ErgoTree::Test < Test::Unit::TestCase
     base_16 = "100204a00b08cd021dde34603426402615658f1d970cfa7c7bd92ac81a8b16eeebff264d59ce4604ea02d192a39a8cc7a70173007301"
     tree = Sigma::ErgoTree.from_base16_encoded_string(base_16)
     assert_equal(base_16, tree.to_base16_encoded_string)
-    assert_nothing_raised do
+    bytes = assert_nothing_raised do
       tree.to_bytes
     end
+    tree_from_bytes = Sigma::ErgoTree.from_bytes(bytes)
+    assert_equal(tree_from_bytes, tree)
     assert_nothing_raised do
       tree.to_template_bytes
     end
