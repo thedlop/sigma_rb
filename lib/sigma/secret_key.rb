@@ -3,6 +3,7 @@ require_relative './util.rb'
 require 'ffi-compiler/loader'
 
 module Sigma
+  # Secret key for the prover
   class SecretKey
     extend FFI::Library
     ffi_lib FFI::Compiler::Loader.find('csigma')
@@ -15,12 +16,17 @@ module Sigma
 
     attr_accessor :pointer
 
+    # Generate random key
+    # @return [SecretKey]
     def self.create
       pointer = FFI::MemoryPointer.new(:pointer)
       ergo_lib_secret_key_generate_random(pointer)
       init(pointer)
     end
 
+    # Parse dlog secret key from bytes (SEC-1-encoded scalar)
+    # @param bytes [Array<uint8>] Array of 8-bit integers (0-255)
+    # @return [SecretKey]
     def self.from_bytes(bytes)
       pointer = FFI::MemoryPointer.new(:pointer)
       b_ptr = FFI::MemoryPointer.new(:uint8, bytes.size)
@@ -30,16 +36,24 @@ module Sigma
       init(pointer)
     end
 
+    # Takes ownership of an existing SecretKey Pointer.
+    # @note A user of sigma_rb generally does not need to call this function
+    # @param pointer [FFI::MemoryPointer]
+    # @return [SecretKey]
     def self.with_raw_pointer(pointer)
       init(pointer)
     end
 
+    # Get address (encoded public image)
+    # @return [Address]
     def get_address
       pointer = FFI::MemoryPointer.new(:pointer)
       ergo_lib_secret_key_get_address(self.pointer, pointer)
       Sigma::Address.with_raw_pointer(pointer)
     end
-
+    
+    # Encode to bytes
+    # @return [Array<uint8>] Array of 8-bit integers (0-255)
     def to_bytes
       bytes_len = 32
       b_ptr = FFI::MemoryPointer.new(:uint8, bytes_len) 
@@ -61,6 +75,7 @@ module Sigma
     end
   end
 
+  # An ordered collection of SecretKey
   class SecretKeys
     extend FFI::Library
     ffi_lib FFI::Compiler::Loader.find('csigma')
@@ -73,10 +88,16 @@ module Sigma
 
     attr_accessor :pointer
 
+    # Takes ownership of an existing SecretKeys Pointer.
+    # @note A user of sigma_rb generally does not need to call this function
+    # @param pointer [FFI::MemoryPointer]
+    # @return [SecretKeys]
     def self.with_raw_pointer(unread_pointer)
       init(unread_pointer)
     end
 
+    # Create an empty collection
+    # @return [SecretKeys]
     def self.create
       pointer = FFI::MemoryPointer.new(:pointer)
       ergo_lib_secret_keys_new(pointer)
@@ -84,14 +105,21 @@ module Sigma
       init(pointer)
     end
 
+    # Get length of collection
+    # @return [Integer]
     def len
       ergo_lib_secret_keys_len(self.pointer)
     end
 
+    # Add to collection
+    # @param secret_key [SecretKey]
     def add(secret_key)
       ergo_lib_secret_keys_add(secret_key.pointer, self.pointer)
     end
 
+    # Get item at specified index or return nil if no item exists
+    # @param index [Integer]
+    # @return [SecretKey, nil]
     def get(index)
       pointer = FFI::MemoryPointer.new(:pointer)
       res = ergo_lib_secret_keys_get(self.pointer, index, pointer)

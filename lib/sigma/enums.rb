@@ -33,7 +33,7 @@ module Sigma
       :r9
     ]
 
-  # Node side
+  # Represents which side the node is on in the merkle tree
   # @see https://github.com/ffi/ffi/wiki/Enums FFI Enum Documentation
   NODE_SIDE_ENUM = enum :node_side,
     [
