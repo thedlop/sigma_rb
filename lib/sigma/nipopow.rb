@@ -14,6 +14,9 @@ module Sigma
 
     attr_accessor :pointer
 
+    # Parse NiPoPow from json
+    # @param json [String]
+    # @return [NipopowProof]
     def self.with_json(json)
       pointer = FFI::MemoryPointer.new(:pointer)
       error = ergo_lib_nipopow_proof_from_json(json, pointer)
@@ -21,6 +24,9 @@ module Sigma
       init(pointer)
     end
 
+    # Implementation of the ≥ algorithm from [`KMZ17`], see Algorithm 4
+    # @return [bool]
+    # @see https://fc20.ifca.ai/preproceedings/74.pdf KMZ17
     def is_better_than(other_proof)
       pointer = FFI::MemoryPointer.new(:pointer)
       res = ergo_lib_nipopow_proof_is_better_than(self.pointer, other_proof.pointer)
@@ -28,6 +34,8 @@ module Sigma
       res[:value]
     end
 
+    # JSON representation
+    # @return [String]
     def to_json
       s_ptr = FFI::MemoryPointer.new(:pointer, 1)
       error = ergo_lib_nipopow_proof_to_json(self.pointer, s_ptr)
@@ -52,6 +60,8 @@ module Sigma
     end
   end
   
+  # A verifier for PoPoW proofs. During its lifetime, it processes many proofs with the aim of
+  # deducing at any given point what is the best (sub)chain rooted at the specified genesis.
   class NipopowVerifier
     extend FFI::Library
     ffi_lib FFI::Compiler::Loader.find('csigma')
@@ -62,18 +72,25 @@ module Sigma
     attach_function :ergo_lib_nipopow_verifier_process, [:pointer,:pointer], :error_pointer
     attr_accessor :pointer
 
+    # Create new instance
+    # @param genesis_block_id [BlockId]
+    # @return [NipopowVerifier]
     def self.create(genesis_block_id)
       pointer = FFI::MemoryPointer.new(:pointer)
       ergo_lib_nipopow_verifier_new(genesis_block_id.pointer, pointer)
       init(pointer)
     end
 
+    # Returns chain of `BlockHeader`s from the best proof.
+    # @return [BlockHeaders]
     def best_chain
       pointer = FFI::MemoryPointer.new(:pointer)
       ergo_lib_nipopow_verifier_best_chain(self.pointer, pointer)
       BlockHeaders.with_raw_pointer(pointer)
     end
 
+    # Process given proof
+    # @param proof [NipopowProof]
     def process(proof)
       error = ergo_lib_nipopow_verifier_process(self.pointer, proof.pointer)
       Util.check_error!(error)
@@ -104,6 +121,9 @@ module Sigma
     attach_function :ergo_lib_po_pow_header_eq, [:pointer, :pointer], :bool
     attr_accessor :pointer
 
+    # Create from json
+    # @param json [String]
+    # @return [PoPowHeader]
     def self.with_json(json)
       pointer = FFI::MemoryPointer.new(:pointer)
       error = ergo_lib_popow_header_from_json(json, pointer)
@@ -111,6 +131,8 @@ module Sigma
       init(pointer)
     end
 
+    # JSON representation
+    # @return [String]
     def to_json
       s_ptr = FFI::MemoryPointer.new(:pointer, 1)
       error = ergo_lib_popow_header_to_json(self.pointer, s_ptr)
@@ -121,6 +143,8 @@ module Sigma
       str
     end
 
+    # Get header
+    # @return [BlockHeader]
     def get_header
       pointer = FFI::MemoryPointer.new(:pointer)
       error = ergo_lib_popow_header_get_header(self.pointer, pointer)
@@ -128,6 +152,8 @@ module Sigma
       BlockHeader.with_raw_pointer(pointer)
     end
 
+    # Get interlinks
+    # @return [BlockIds]
     def get_interlinks
       pointer = FFI::MemoryPointer.new(:pointer)
       error = ergo_lib_popow_header_get_interlinks(self.pointer, pointer)
@@ -135,6 +161,9 @@ module Sigma
       BlockIds.with_raw_pointer(pointer)
     end
 
+    # Equality check
+    # @param other_header [PoPowHeader]
+    # @return [bool]
     def ==(other_header)
       ergo_lib_po_pow_header_eq(self.pointer, other_header.pointer)
     end

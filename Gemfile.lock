@@ -16,6 +16,9 @@ GEM
     rake (13.0.6)
     test-unit (3.5.1)
       power_assert
+    webrick (1.7.0)
+    yard (0.9.27)
+      webrick (~> 1.7.0)
 
 PLATFORMS
   x86_64-linux
@@ -24,6 +27,7 @@ DEPENDENCIES
   ffi (= 1.15.5)
   sigma_rb!
   test-unit (~> 3.5)
+  yard (~> 0.6)
 
 BUNDLED WITH
    2.2.33

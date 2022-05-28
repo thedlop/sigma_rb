@@ -3,6 +3,7 @@ require_relative './util.rb'
 require 'ffi-compiler/loader'
 
 module Sigma
+  # Defines the contract (script) that will be guarding box contents
   class Contract
     extend FFI::Library
     ffi_lib FFI::Compiler::Loader.find('csigma')
@@ -16,10 +17,17 @@ module Sigma
 
     attr_accessor :pointer
 
+    # Takes ownership of an existing Contract Pointer.
+    # @note A user of sigma_rb generally does not need to call this function
+    # @param pointer [FFI::MemoryPointer]
+    # @return [Contract]
     def self.with_raw_pointer(contract_pointer)
       init(contract_pointer)
     end
   
+    # Create a new contract from an ErgoTree
+    # @param ergo_tree [ErgoTree]
+    # @return [Contract]
     def self.from_ergo_tree(ergo_tree)
       pointer = FFI::MemoryPointer.new(:pointer)
       ergo_lib_contract_new(ergo_tree.pointer, pointer)
@@ -27,14 +35,20 @@ module Sigma
       init(pointer) 
     end
 
-    def self.compile_from_string(str)
+    # Compiles a contract from ErgoScript source code
+    # @param source [String]
+    # @return [Contract]
+    def self.compile_from_string(source)
       pointer = FFI::MemoryPointer.new(:pointer)
-      error = ergo_lib_contract_compile(str, pointer)
+      error = ergo_lib_contract_compile(source, pointer)
       Util.check_error!(error)
       
       init(pointer)
     end
 
+    # Create new contract that allow spending of the guarded box by a given recipient (Address)
+    # @param address [Address]
+    # @return [Contract]
     def self.pay_to_address(address)
       pointer = FFI::MemoryPointer.new(:pointer)
       error = ergo_lib_contract_pay_to_address(address.pointer, pointer)
@@ -43,12 +57,17 @@ module Sigma
       init(pointer)
     end
 
+    # Get the ErgoTree of the contract
+    # @return [ErgoTree]
     def get_ergo_tree
       pointer = FFI::MemoryPointer.new(:pointer)
       ergo_lib_contract_ergo_tree(self.pointer, pointer)
       Sigma::ErgoTree.with_raw_pointer(pointer)
     end
 
+    # Equality check for two Contracts
+    # @param contract_two [Contract]
+    # @return [bool]
     def ==(contract_two)
       ergo_lib_contract_eq(self.pointer, contract_two.pointer)
     end

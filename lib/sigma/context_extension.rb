@@ -3,6 +3,7 @@ require_relative './util.rb'
 require 'ffi-compiler/loader'
 
 module Sigma
+  # User-defined variables to be put into context
   class ContextExtension
     extend FFI::Library
     ffi_lib FFI::Compiler::Loader.find('csigma')
@@ -13,16 +14,25 @@ module Sigma
     attach_function :ergo_lib_context_extension_keys, [:pointer, :pointer], :void
     attr_accessor :pointer
 
+    # Creates an empty ContextExtension
+    # @return [ContextExtension]
     def self.create
       pointer = FFI::MemoryPointer.new(:pointer)
       ergo_lib_context_extension_empty(pointer)
       init(pointer) 
     end
 
+    
+    # Takes ownership of an existing ContextExtension Pointer.
+    # @note A user of sigma_rb generally does not need to call this function
+    # @param pointer [FFI::MemoryPointer]
+    # @return [ContextExtension]
     def self.with_raw_pointer(pointer)
       init(pointer)
     end
 
+    # Get all keys in the map
+    # @return [Array<uint8>]
     def get_keys
       ce_len = ergo_lib_context_extension_len(self.pointer)
       b_ptr = FFI::MemoryPointer.new(:uint8, ce_len)

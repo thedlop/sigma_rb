@@ -31,6 +31,10 @@ module Sigma
       init(pointer)
     end
 
+    # Adds a new node and it's hash to the MerkleProof. Hash must be 32 bytes in size
+    # @param hash: [Array<uint8, 32>]
+    # @param side: [Integer]
+    # @see NODE_SIDE_ENUM
     def add_node(hash:, side:)
       b_ptr = FFI::MemoryPointer.new(:uint8, hash.size)
       b_ptr.write_array_of_uint8(hash)
@@ -38,7 +42,9 @@ module Sigma
       Util.check_error!(error)
     end
 
-    # Hash can be an Array(Uint8) or String
+    # Validates the MerkleProof against the provided root hash
+    # @param hash [Array<uint8>, String]
+    # @return [bool]
     def valid(hash)
       if hash.is_a?(Array)
         valid_with_array(hash)

@@ -10,3 +10,4 @@ ext/sigma.o
 ext/libergo.h
 temp/**
 *.gem
+.yardoc
