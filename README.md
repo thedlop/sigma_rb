@@ -69,10 +69,3 @@ Generated documentation can be viewed on [RubyDoc](https://www.rubydoc.info/gems
 
 # Thank You
 Thank you to the Ergo Development community for consistent words of encouragement. Big thanks to Sigma-Rust maintainers for providing the C bindings which made this possible. Thank you to the iOS bindings developers as it was a constant reference for this work.
-
-
-### TODO
-- [x] Package up into gem
-- [x] Add installation instructions and target platforms to README
-- [x] Add pointers to example usage to README
-- [ ] Add YARD documentation so docs can be generated and viewed at https://www.rubydoc.info/
