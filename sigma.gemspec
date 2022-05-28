@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'sigma_rb'
-  s.version     = '0.1.3'
+  s.version     = '0.1.4'
   s.summary     = "Ruby bindings for Ergo types, abstractions, and interfaces provided by Sigma-Rust."
   s.description = "Ruby bindings for the Ergo-Lib crate of Sigma-Rust. Specifically for chain types and abstractions, json serialization, box selection for tx inputs, tx creation, and signing."
   s.authors     = ["Dark Lord of Programming"]
