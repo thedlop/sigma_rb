@@ -73,13 +73,15 @@ class Sigma::Token::Test < Test::Unit::TestCase
     token_amount = Sigma::TokenAmount.with_i64(amount)
     token = Sigma::Token.create(token_id: token_id, token_amount: token_amount)
 
-    255.times do |i|
+    max_tokens_count = ErgoBox::MAX_TOKENS_COUNT
+
+    max_tokens_count.times do |i|
       tokens.add(token)
     end
-    assert_equal(255, tokens.len)
-    assert_equal(tokens.get(254), token)
+    assert_equal(max_tokens_count, tokens.len)
+    assert_equal(tokens.get(max_tokens_count - 1), token)
 
-    # 256 raises error
+    # Next raises error
     assert_raise do
       tokens.add(token)
     end
