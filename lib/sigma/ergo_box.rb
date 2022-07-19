@@ -359,6 +359,10 @@ module Sigma
 
     attr_accessor :pointer
 
+    # Safe maximum number of tokens in the box
+    # Calculated from the max box size (4kb) limit and the size of the token (32 bytes)
+    MAX_TOKENS_COUNT = 100
+
     # Create a new box
     # @param box_value: [BoxValue] amount of money associated with box
     # @param creation_height: [Integer] height when a transaction containing the box is created

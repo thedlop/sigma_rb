@@ -262,7 +262,7 @@ module Sigma
       end
     end
 
-    # Add to collection
+    # Add to collection. Max capacity of ErgoBox::MAX_TOKENS_COUNT tokens. Will throw error if adding more.
     # @param token [Token]
     def add(token)
       error = ergo_lib_tokens_add(token.pointer, self.pointer)
